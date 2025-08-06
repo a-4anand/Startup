@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SkillSnap AI - Analyze Resume</title>
+    <link rel="stylesheet" href="{% static 'Startup_app/css/style.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="navbar">
+        <div class="logo">SkillSnap<span class="highlight">AI</span></div>
+        <nav>
+            <a href="#">Features</a>
+            <a href="#">Pricing</a>
+            <a href="#">About</a>
+            <a href="#">Login</a>
+        </nav>
+    </header>
+
+    <!-- Background Video -->
+    <div class="video-background">
+        <video autoplay muted loop playsinline>
+            <source src="{% static 'Startup_app/images/2611250-uhd_3840_2160_30fps.mp4' %}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <!-- Resume Upload Form -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Upload Your Resume</h1>
+            <p>Get instant AI-powered feedback for your resume, tailored to your job role.</p>
+
+            <form action="{% url 'analyze_resume' %}" method="POST" enctype="multipart/form-data" class="resume-form">
+                {% csrf_token %}
+
+                <label for="resume">Upload Resume (PDF only):</label>
+                <input type="file" name="resume" accept=".pdf" required><br><br>
+
+                <label for="job_info">Job Experience / Role:</label>
+                <textarea name="job_info" rows="4" cols="50" placeholder="Describe the role you're targeting..." required></textarea><br><br>
+
+                <button type="submit" class="btn-primary">Analyze Resume</button>
+            </form>
+        </div>
+    </section>
+
+</body>
+</html>

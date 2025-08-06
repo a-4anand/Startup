@@ -1,0 +1,20 @@
+
+.env
+*.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Django stuff
+db.sqlite3
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# Model files
+*.pkl
+*.h5
