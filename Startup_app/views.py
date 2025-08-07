@@ -14,7 +14,8 @@ from io import BytesIO
 
 
 genai.configure(api_key=settings.GEMINI_API_KEY)# Recommended way
-model = genai.GenerativeModel("gemini-1.5-pro")
+model = genai.GenerativeModel('gemini-1.5-pro', generation_config={"temperature": 0.3})
+
 
 # Views
 def index(request):
@@ -52,8 +53,6 @@ def analyze_resume(request):
         Suggest improvements to make the resume better for this role.
         """
 
-        # Generate Gemini response using the latest stable model
-        model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
         response = model.generate_content(prompt)
 
         return render(request, 'Startup_app/result.html', {'feedback': response.text})
@@ -64,7 +63,6 @@ def analyze_resume(request):
 def ask_gemini(request):
     if request.method == 'POST':
         prompt = request.POST.get('prompt', '')
-        model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
         response = model.generate_content(prompt)
         return JsonResponse({'response': response.text})
     return JsonResponse({'error': 'Only POST method allowed'}, status=405)
@@ -74,20 +72,14 @@ def resume_analyzer(request):
     comments = None
 
     if request.method == "POST":
-
-
         if "improve" in request.POST:
             resume_text = request.session.get("resume_text", "")
-            job_desc = request.session.get("job_desc", "")
 
             prompt = f"""
-You are an expert resume coach. Analyze the following resume in context of the job description and give detailed suggestions to improve ATS matching.
+You are an expert resume coach. Analyze the following resume and give detailed suggestions to improve its effectiveness for a general technical or business job.
 
 Resume:
 {resume_text}
-
-Job Description:
-{job_desc}
 """
             response = model.generate_content(prompt)
             suggestions = response.text
@@ -95,7 +87,6 @@ Job Description:
 
         else:
             resume_file = request.FILES.get("resume")
-            job_desc = request.POST.get("job_desc", "")
 
             if resume_file:
                 try:
@@ -106,26 +97,29 @@ Job Description:
                     })
 
                 prompt = f"""
-You are an ATS (Applicant Tracking System) evaluator.
+                You are an ATS (Applicant Tracking System) evaluator.
 
-Compare the following resume with the job description and return:
-1. Only the ATS match **score out of 100** (just a number) on the first line.
-2. Then provide 3-5 bullet points:
-   - What matches well (skills, keywords, experience).
-   - What can be improved.
+                Evaluate the following resume and return the following exactly:
+                1. A plain integer ATS compatibility score from 0 to 100 **on the first line only**.
+                2. Then write 3 to 5 bullet points explaining:
+                   - What matches well (skills, keywords, structure)
+                   - What can be improved
 
-### FORMAT:
-<Score (number only)>
-- Bullet point 1
-- Bullet point 2
-...
+                ⚠️ Strict Rules:
+                - The score MUST be an integer only (e.g., `75`) — no slashes, no percentage signs.
+                - DO NOT write "score", "out of", "/100", etc.
+                - Follow the format exactly, like this:
 
-### Resume:
-{resume_text}
+                75
+                - Strong use of industry keywords such as Python and SQL.
+                - Clearly structured education and experience section.
+                - Could improve formatting for ATS parsing.
+                - Add more quantified results under achievements.
 
-### Job Description:
-{job_desc}
-"""
+                ### Resume:
+                {resume_text}
+                """
+
                 response = model.generate_content(prompt)
                 raw_output = response.text.strip()
 
@@ -140,7 +134,6 @@ Compare the following resume with the job description and return:
 
                 # Save in session
                 request.session["resume_text"] = resume_text
-                request.session["job_desc"] = job_desc
                 request.session["ats_score"] = ats_score
 
     return render(request, "Startup_app/form.html", {
@@ -148,4 +141,6 @@ Compare the following resume with the job description and return:
         "suggestions": suggestions,
         "comments": comments
     })
+
+
 

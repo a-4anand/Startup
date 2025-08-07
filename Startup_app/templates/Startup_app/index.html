@@ -8,6 +8,12 @@
     <title>SkillSnap AI - Home</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'Startup_app/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<!-- AOS Library CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -15,9 +21,11 @@
     <header class="navbar">
         <div class="logo">SkillSnap<span class="highlight">AI</span></div>
         <nav>
-            <a href="#">Features</a>
-            <a href="#">Pricing</a>
-            <a href="#">About</a>
+            <a href="/"><i class="fas fa-home"></i> </a>
+            <a href="#features">Features</a>
+            <a href="#about">About</a>
+            <a href="#pricing">Pricing</a>
+
             <a href="#">Login</a>
         </nav>
     </header>
@@ -30,11 +38,167 @@
 
     <section class="hero">
         <div class="hero-content">
-            <h1>Smarter Hiring Starts Here</h1>
-            <p>AI-Powered Candidate Screening & Portfolio Insights for Faster, Better Hiring Decisions.</p>
-            <a href="{% url 'form' %}" class="btn-primary">Get Started</a>
+            <h1>Boost Your Resume's ATS Score</h1>
+<p>Get instant feedback and AI-powered suggestions to make your resume stand out to recruiters and beat the bots.</p>
+
+           <a href="{% url 'form' %}" class="btn-primary">Check My Resume</a>
+
 
         </div>
     </section>
+
+<section class="features-section" id="features" data-aos="fade-up">
+  <div class="container" data-aos="fade-up" data-aos-delay="200" >
+    <h2 class="section-title">What SkillSnap AI Offers</h2>
+    <div class="features-grid">
+
+      <div class="feature-card" >
+        <i class="fa fa-robot feature-icon"></i>
+        <h3>ATS Score Checker</h3>
+        <p>Instantly analyze your resume to see how well it performs against applicant tracking systems.</p>
+      </div>
+
+      <div class="feature-card">
+        <i class="fa fa-lightbulb feature-icon"></i>
+        <h3>Personalized AI Suggestions</h3>
+        <p>Get tailored feedback to improve clarity, formatting, keywords, and more — all AI-optimized.</p>
+      </div>
+
+      <div class="feature-card">
+        <i class="fa fa-chart-line feature-icon"></i>
+        <h3>Resume Benchmarking</h3>
+        <p>Compare your resume against top industry resumes and see how you stack up.</p>
+      </div>
+
+      <div class="feature-card">
+        <i class="fa fa-file-alt feature-icon"></i>
+        <h3>Real-Time Improvements</h3>
+        <p>Upload your resume and instantly receive actionable edits you can apply right away.</p>
+      </div>
+
+      <div class="feature-card">
+        <i class="fa fa-briefcase feature-icon"></i>
+        <h3>Role-Specific Tailoring</h3>
+        <p>Target your resume for the job you want with suggestions matched to specific roles and industries.</p>
+      </div>
+
+      <div class="feature-card">
+        <i class="fa fa-star feature-icon"></i>
+        <h3>Highlight Key Strengths</h3>
+        <p>Ensure your top achievements and skills stand out to recruiters and hiring managers.</p>
+      </div>
+
+        <div class="feature-card">
+      <i class="fa fa-shield-alt feature-icon"></i>
+      <h3>Privacy & Security</h3>
+      <p>Your data is protected. We never store or share your resume — everything runs securely in real-time.</p>
+    </div>
+
+        <div class="feature-card coming-soon-card">
+      <i class="fa fa-hourglass-half feature-icon"></i>
+      <h3>More Features Coming</h3>
+      <p>We’re constantly working to add new tools and enhancements. Stay tuned!</p>
+    </div>
+
+    </div>
+  </div>
+</section>
+
+<br>
+    <br>
+    <br>
+
+<!--pricing-->
+<!--    -->
+
+    <section id="pricing" class="pricing-section"  data-aos="fade-up" data-aos-delay="400">
+  <h2 class="section-title">Support Us</h2>
+  <div class="pricing-card">
+    <div class="pricing-content">
+      <h3>Donation-Based</h3>
+      <p>Our service is currently free and powered by community support. If you'd like to contribute to the development and growth of this platform, you can donate using the QR code below.</p>
+    </div>
+    <div class="qr-container">
+      <img src="{% static 'Startup_app/images/qr.png' %}" alt="Donate QR Code">
+      <p>Scan to Donate</p>
+    </div>
+  </div>
+</section>
+
+<!--    about section -->
+
+
+
+<!--    -->
+<section id="about" class="about-section" data-aos="fade-up" data-aos-delay="600">
+  <div class="about-container">
+    <h2 class="about-title">About Us</h2>
+
+    <div class="about-card">
+      <!-- Profile Image -->
+      <div class="about-image">
+        <img src="{% static 'Startup_app/images/IMG_1572.jpg' %}" alt="Your Photo">
+      </div>
+
+      <!-- About Text -->
+      <div class="about-text">
+        <h3 class="about-name">Anand Kumar Dubey</h3>
+        <p>
+          I am a Data Science enthusiast and Django developer passionate about building intelligent web applications. With experience in machine learning and AI integration, I love bringing ideas to life through code.
+        </p>
+
+        <h4>About Our Company</h4>
+        <p>
+          At AutoWorth, we specialize in AI-powered solutions for the automobile industry. Our mission is to provide smart, accurate, and efficient tools to help users estimate car prices and make informed decisions.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer Section -->
+<footer style="background-color: #0d0d0d; color: white; padding: 40px 0;">
+  <div style="max-width: 1200px; margin: auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; text-align: center;">
+
+    <!-- Brand/Logo -->
+    <div style="flex: 1; min-width: 200px; margin-bottom: 20px;">
+      <h2 style="color: #38f9d7;">YourStartup</h2>
+      <p>Empowering the future with tech</p>
+    </div>
+
+    <!-- Navigation -->
+    <div style="flex: 1; min-width: 200px; margin-bottom: 20px;">
+      <h3 style="color: #38f9d7;">Quick Links</h3>
+      <a href="#" style="color: white; text-decoration: none; display: block; margin: 5px 0;">Home</a>
+      <a href="#features" style="color: white; text-decoration: none; display: block; margin: 5px 0;">Features</a>
+      <a href="#about" style="color: white; text-decoration: none; display: block; margin: 5px 0;">About</a>
+      <a href="#pricing" style="color: white; text-decoration: none; display: block; margin: 5px 0;">Pricing</a>
+    </div>
+
+    <!-- Social Icons -->
+    <div style="flex: 1; min-width: 200px; margin-bottom: 20px;">
+      <h3 style="color: #38f9d7;">Connect</h3>
+      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-facebook fa-lg"></i></a>
+      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-twitter fa-lg"></i></a>
+      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-instagram fa-lg"></i></a>
+      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-linkedin fa-lg"></i></a>
+    </div>
+  </div>
+
+  <div style="text-align: center; padding-top: 20px; font-size: 14px; color: #bbb;">
+    &copy; 2025 YourStartup. All rights reserved.
+  </div>
+</footer>
+
+
+
+
+<!-- Font Awesome CDN for icons -->
+<!-- AOS Library JS -->
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+  AOS.init();
+</script>
+
 </body>
 </html>
