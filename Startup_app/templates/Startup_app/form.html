@@ -34,17 +34,37 @@
             <h1>Upload Your Resume</h1>
             <p>Get instant AI-powered feedback for your resume, tailored to your job role.</p>
 
-            <form action="{% url 'analyze_resume' %}" method="POST" enctype="multipart/form-data" class="resume-form">
-                {% csrf_token %}
+            <form method="POST" action="{% url 'resume_analyzer' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="resume">Upload Resume (PDF/DOCX):</label>
+    <input type="file" name="resume" required><br><br>
 
-                <label for="resume">Upload Resume (PDF only):</label>
-                <input type="file" name="resume" accept=".pdf" required><br><br>
+    <label for="job_desc">Job Description / Experience:</label><br>
+    <textarea name="job_desc" rows="5" cols="50" required></textarea><br><br>
 
-                <label for="job_info">Job Experience / Role:</label>
-                <textarea name="job_info" rows="4" cols="50" placeholder="Describe the role you're targeting..." required></textarea><br><br>
+    <button type="submit">Get ATS Score</button>
+</form>
+<form method="POST" action="{% url 'resume_analyzer' %}">
+    {% csrf_token %}
+    <input type="hidden" name="improve" value="yes">
+    <button type="submit">Improve My Resume</button>
+</form>
 
-                <button type="submit" class="btn-primary">Analyze Resume</button>
-            </form>
+
+{% if ats_score %}
+    <h2>ATS Score: {{ ats_score }} / 10</h2>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="improve" value="yes">
+        <button type="submit">Improve My Resume</button>
+    </form>
+{% endif %}
+
+{% if suggestions %}
+    <h3>Suggestions to Improve Your Resume:</h3>
+    <p>{{ suggestions }}</p>
+{% endif %}
+
         </div>
     </section>
 
