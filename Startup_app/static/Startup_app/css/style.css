@@ -297,3 +297,147 @@ nav a:hover {
   margin-top: 10px;
   color: #ccc;
 }
+
+
+/*resume uplaod form*/
+
+
+.resume-upload-section {
+
+  padding: 60px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  animation: fadeInBlur 1s ease-in-out;
+
+
+
+}
+
+.resume-upload-content {
+  max-width: 600px;
+  background-color: rgba(20, 20, 20, 0.85);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 12px 35px rgba(56, 249, 215, 0.3);
+  color: #fff;
+  animation: slideIn 1.2s ease;
+  font-family: 'Segoe UI', sans-serif;
+
+}
+ .resume-upload-content:hover{
+     transform: translateY(-7px);
+
+ }
+
+.resume-upload-content h1,
+.resume-upload-content p,
+.resume-upload-content label,
+.resume-upload-content button,
+.resume-upload-content h2,
+.resume-upload-content h3,
+.resume-upload-content ul,
+.resume-upload-content li {
+  color: #fff;
+}
+
+.resume-upload-content h1 {
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.resume-upload-content p {
+  font-size: 1.1em;
+  margin-bottom: 30px;
+}
+
+.resume-upload-content input[type="file"],
+.resume-upload-content button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  border: none;
+  background-color: #38f9d7;
+  color: #090909;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.resume-upload-content input[type="file"] {
+  background-color: #333;
+}
+
+.resume-upload-content button:hover {
+  background-color: #38f9d7;
+}
+
+.resume-upload-content ul {
+  padding-left: 20px;
+}
+
+@keyframes fadeInBlur {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(10px);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+
+
+
+/*markdown style*/
+.ai-feedback-section {
+  background: #111;
+  color: #eee;
+  padding: 50px 20px;
+}
+
+.ai-feedback-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.ai-box {
+  background-color: #1a1a1a;
+  border: 1px solid #38f9d7;
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 0 15px rgba(56, 249, 215, 0.2);
+}
+
+.ai-box h2 {
+  color: #38f9d7;
+  margin-bottom: 20px;
+}
+
+/* Markdown styles (optional tweaks) */
+.markdown-body ul {
+  margin-left: 1.5rem;
+  list-style: disc;
+}
+
+.markdown-body strong {
+  color: #08eab5;
+}
+
+.markdown-body h2, .markdown-body h3 {
+  color: #0ff;
+  margin-top: 1.5em;
+}

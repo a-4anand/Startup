@@ -32,32 +32,7 @@ def extract_text_from_pdf(uploaded_file):
             text += page.extract_text()
     return text
 
-def analyze_resume(request):
-    if request.method == 'POST' and request.FILES.get('resume'):
-        resume_file = request.FILES['resume']
-        job_info = request.POST.get('job_info', '')
 
-        # Only allow PDF for now
-        if not resume_file.name.endswith('.pdf'):
-            return render(request, 'error.html', {'message': 'Only PDF resumes supported for now'})
-
-        # Extract text from resume
-        resume_text = extract_text(BytesIO(resume_file.read()))
-
-
-
-        # Create prompt
-        prompt = f"""
-        This is a resume text:\n{resume_text}\n
-        The candidate is applying for the following role:\n{job_info}\n
-        Suggest improvements to make the resume better for this role.
-        """
-
-        response = model.generate_content(prompt)
-
-        return render(request, 'Startup_app/result.html', {'feedback': response.text})
-
-    return render(request, 'error.html', {'message': 'Invalid request. Please upload a resume.'})
 
 
 def ask_gemini(request):
