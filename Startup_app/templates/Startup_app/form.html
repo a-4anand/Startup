@@ -9,66 +9,15 @@
     <title>SkillSnap AI - Home</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'Startup_app/css/style.css' %}">
+  <script src="{% static 'Startup_app/js/script.js' %}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
 <!-- AOS Library CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+
 
 <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
-  <style>
-     #suggestions-section {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
-  }
-
-  /* Class to make it visible */
-  #suggestions-section.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-   #ats_score {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
-  }
-
-  /* Class to make it visible */
-  #ats_score.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  #loading-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7);
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: 18px;
-    font-family: sans-serif;
-  }
-
-  .loading-spinner {
-    border: 6px solid #f3f3f3;
-    border-top: 6px solid #38f9d7;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 1s linear infinite;
-    margin-bottom: 20px;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-</style>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -294,87 +243,8 @@
   </div>
 </footer>
 
-
-
-<!-- Font Awesome CDN for icons -->
-<!-- AOS Library JS -->
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-<script>
-  AOS.init();
-</script>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const forms = document.querySelectorAll("form");
-    const loader = document.getElementById("loading-overlay");
-
-    forms.forEach(form => {
-      form.addEventListener("submit", function () {
-        loader.style.display = "flex";
-      });
-    });
-  });
-</script>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const suggestionsBox = document.getElementById("suggestions-section");
-    if (suggestionsBox) {
-      suggestionsBox.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-
-      // Small delay so scroll happens first, then animation
-      setTimeout(() => {
-        suggestionsBox.classList.add("show");
-      }, 500);
-    }
-  });
-</script>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const suggestionsBox = document.getElementById("ats_score");
-    if (suggestionsBox) {
-      suggestionsBox.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-
-      // Small delay so scroll happens first, then animation
-      setTimeout(() => {
-        suggestionsBox.classList.add("show");
-      }, 500);
-    }
-  });
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const scoreElement = document.getElementById("ats-score2");
-
-  if (scoreElement) {
-    const finalScore = parseInt(scoreElement.getAttribute("data-score"), 10);
-    let currentScore = 0;
-    const duration = 1500; // animation time in ms
-    const increment = finalScore / (duration / 30);
-
-    const timer = setInterval(() => {
-      currentScore += increment;
-      if (currentScore >= finalScore) {
-        currentScore = finalScore;
-        clearInterval(timer);
-      }
-      scoreElement.textContent = Math.floor(currentScore) + "/100";
-    }, 30);
-  }
-});
-</script>
-
-<!--manu tuggle-->
-<script>
-  document.getElementById("menu-toggle").addEventListener("click", function() {
-    document.getElementById("nav-links").classList.toggle("show");
-  });
-</script>
+<script src="{% static 'Startup_app/js/script.js' %}"></script>
 
 
 </body>
