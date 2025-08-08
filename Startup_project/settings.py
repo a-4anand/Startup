@@ -27,7 +27,9 @@ SECRET_KEY = 'django-insecure-y5^i$))+t8)t%xgzlruk!npp30xr=-z@6uo6!tfawunrp=d8gc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['https://rezoome.azurewebsites.net/',
+                 'localhost',
+                 "127.0.0.1"]
 
 
 # Application definition
@@ -85,6 +87,10 @@ DATABASES = {
     }
 }
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://rezoome.azurewebsites.net",
+    "https://www.yourdomain.com"
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
