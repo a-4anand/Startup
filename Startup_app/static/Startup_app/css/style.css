@@ -4,6 +4,9 @@
     box-sizing: border-box;
     font-family: "Segoe UI", sans-serif;
 }
+html {
+  scroll-padding-top: 80px; /* match or slightly more than navbar height */
+}
 
 body {
     /*background-color: #0a0a0a;*/
@@ -402,10 +405,13 @@ nav a:hover {
 
 
 /*markdown style*/
+/* AI Feedback Section */
 .ai-feedback-section {
-  background: #111;
-  color: #eee;
-  padding: 50px 20px;
+  background: #181a1b; /* Softer dark */
+  color: #f5f5f5;
+  padding: 60px 20px;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  line-height: 1.6;
 }
 
 .ai-feedback-container {
@@ -413,31 +419,43 @@ nav a:hover {
   margin: 0 auto;
 }
 
+/* AI Feedback Card */
 .ai-box {
-  background-color: #1a1a1a;
-  border: 1px solid #38f9d7;
-  border-radius: 12px;
+  background: linear-gradient(145deg, #1e2224, #17191a);
+  border: 1px solid rgba(78, 242, 212, 0.4);
+  border-radius: 14px;
   padding: 30px;
   margin-bottom: 30px;
-  box-shadow: 0 0 15px rgba(56, 249, 215, 0.2);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ai-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 25px rgba(78, 242, 212, 0.2);
 }
 
 .ai-box h2 {
-  color: #38f9d7;
-  margin-bottom: 20px;
+  color: #4ef2d4;
+  font-size: 1.8rem;
+  margin-bottom: 15px;
 }
 
-/* Markdown styles (optional tweaks) */
 .markdown-body ul {
   margin-left: 1.5rem;
   list-style: disc;
+  padding-left: 10px;
 }
 
 .markdown-body strong {
-  color: #08eab5;
+  color: #4ef2d4;
 }
 
 .markdown-body h2, .markdown-body h3 {
-  color: #0ff;
+  color: #6fffe9;
   margin-top: 1.5em;
+}
+
+.markdown-body li {
+  margin-bottom: 0.6em;
 }

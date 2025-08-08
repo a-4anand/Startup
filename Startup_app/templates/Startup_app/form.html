@@ -16,6 +16,29 @@
 
 <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
   <style>
+     #suggestions-section {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  /* Class to make it visible */
+  #suggestions-section.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+   #ats_score {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  /* Class to make it visible */
+  #ats_score.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
   #loading-overlay {
     position: fixed;
     top: 0; left: 0;
@@ -96,9 +119,9 @@
   <div class="ai-feedback-container">
 
     {% if ats_score %}
-      <div class="ai-box">
+      <div class="ai-box" id="ats_score">
         <h2>ATS Score</h2>
-        <p>{{ ats_score }}/100</p>
+        <p id="ats-score2" data-score="{{ ats_score }}">0/100</p>
       </div>
     {% endif %}
 
@@ -112,7 +135,7 @@
     {% endif %}
 
     {% if suggestions %}
-      <div class="ai-box">
+      <div class="ai-box" id="suggestions-section">
         <h2>Resume Improvement Suggestions</h2>
         <div class="markdown-body">
           {{ suggestions|render_markdown|safe }}
@@ -288,6 +311,61 @@
     });
   });
 </script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const suggestionsBox = document.getElementById("suggestions-section");
+    if (suggestionsBox) {
+      suggestionsBox.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+
+      // Small delay so scroll happens first, then animation
+      setTimeout(() => {
+        suggestionsBox.classList.add("show");
+      }, 500);
+    }
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const suggestionsBox = document.getElementById("ats_score");
+    if (suggestionsBox) {
+      suggestionsBox.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+
+      // Small delay so scroll happens first, then animation
+      setTimeout(() => {
+        suggestionsBox.classList.add("show");
+      }, 500);
+    }
+  });
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const scoreElement = document.getElementById("ats-score2");
+
+  if (scoreElement) {
+    const finalScore = parseInt(scoreElement.getAttribute("data-score"), 10);
+    let currentScore = 0;
+    const duration = 1500; // animation time in ms
+    const increment = finalScore / (duration / 30);
+
+    const timer = setInterval(() => {
+      currentScore += increment;
+      if (currentScore >= finalScore) {
+        currentScore = finalScore;
+        clearInterval(timer);
+      }
+      scoreElement.textContent = Math.floor(currentScore) + "/100";
+    }, 30);
+  }
+});
+</script>
+
 
 </body>
 
