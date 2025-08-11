@@ -1,24 +1,24 @@
-document.getElementById("menu-toggle").addEventListener("click", function () {
-    document.getElementById("nav-links").classList.toggle("show");
-});
-
-
-AOS.init();
-
-src = "https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"
-
-document.getElementById("menu-toggle").addEventListener("click", function () {
-    document.getElementById("nav-links").classList.toggle("show");
-});
-
-
+// Initialize AOS after DOM load
 document.addEventListener("DOMContentLoaded", function () {
-    const scoreElement = document.getElementById("ats-score2");
 
+    // Initialize AOS animations
+    AOS.init();
+
+    // Menu toggle
+    const menuToggle = document.getElementById("menu-toggle");
+    const navLinks = document.getElementById("nav-links");
+    if (menuToggle && navLinks) {
+        menuToggle.addEventListener("click", () => {
+            navLinks.classList.toggle("show");
+        });
+    }
+
+    // ATS Score Animation
+    const scoreElement = document.getElementById("ats-score2");
     if (scoreElement) {
         const finalScore = parseInt(scoreElement.getAttribute("data-score"), 10);
         let currentScore = 0;
-        const duration = 1500; // animation time in ms
+        const duration = 1500; // ms
         const increment = finalScore / (duration / 30);
 
         const timer = setInterval(() => {
@@ -30,45 +30,29 @@ document.addEventListener("DOMContentLoaded", function () {
             scoreElement.textContent = Math.floor(currentScore) + "/100";
         }, 30);
     }
-});
 
-document.addEventListener("DOMContentLoaded", function () {
-    const suggestionsBox = document.getElementById("ats_score");
-    if (suggestionsBox) {
-        suggestionsBox.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
-        // Small delay so scroll happens first, then animation
-        setTimeout(() => {
-            suggestionsBox.classList.add("show");
-        }, 500);
+    // Scroll to ATS score
+    const atsBox = document.getElementById("ats_score");
+    if (atsBox) {
+        atsBox.scrollIntoView({ behavior: "smooth", block: "start" });
+        setTimeout(() => atsBox.classList.add("show"), 500);
     }
-});
 
-document.addEventListener("DOMContentLoaded", function () {
+    // Scroll to suggestions
     const suggestionsBox = document.getElementById("suggestions-section");
     if (suggestionsBox) {
-        suggestionsBox.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
-        // Small delay so scroll happens first, then animation
-        setTimeout(() => {
-            suggestionsBox.classList.add("show");
-        }, 500);
+        suggestionsBox.scrollIntoView({ behavior: "smooth", block: "start" });
+        setTimeout(() => suggestionsBox.classList.add("show"), 500);
     }
-});
-document.addEventListener("DOMContentLoaded", function () {
+
+    // Loader on form submit
     const forms = document.querySelectorAll("form");
     const loader = document.getElementById("loading-overlay");
-
-    forms.forEach(form => {
-        form.addEventListener("submit", function () {
-            loader.style.display = "flex";
+    if (loader) {
+        forms.forEach(form => {
+            form.addEventListener("submit", () => {
+                loader.style.display = "flex";
+            });
         });
-    });
+    }
 });
-
