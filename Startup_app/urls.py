@@ -7,7 +7,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.index,name='index'),
     path('form/', views.form_view, name='form'),
-    path('ask_gemini/', views.ask_gemini, name='ask_gemini'),
     path('resume-analyzer/', views.resume_analyzer, name='resume_analyzer'),
     path('download-resume-pdf/', views.download_resume_pdf, name='download_resume_pdf'),
 ]

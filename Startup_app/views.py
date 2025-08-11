@@ -1,14 +1,14 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-import os
+from django.http import HttpResponse, JsonResponse
+import os, json, re, base64
 from dotenv import load_dotenv
 import google.generativeai as genai
 from PyPDF2 import PdfReader
 from django.conf import settings
 from pdfminer.high_level import extract_text
 from io import BytesIO
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, ListFlowable, ListItem
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.pagesizes import LETTER
 
 load_dotenv()
@@ -16,12 +16,13 @@ genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-1.5-pro', generation_config={"temperature": 0.3})
 
 
-# Views
 def index(request):
     return render(request, 'Startup_app/index.html')
 
+
 def form_view(request):
     return render(request, 'Startup_app/form.html')
+
 
 def extract_text_from_pdf(uploaded_file):
     reader = PdfReader(uploaded_file)
@@ -34,183 +35,75 @@ def extract_text_from_pdf(uploaded_file):
 
 
 
-def ask_gemini(request):
-    if request.method == 'POST':
-        prompt = request.POST.get('prompt', '')
-        response = model.generate_content(prompt)
-        return JsonResponse({'response': response.text})
-    return JsonResponse({'error': 'Only POST method allowed'}, status=405)
 
 def resume_analyzer(request):
     ats_score = None
     comments = None
-    generated_resume = None
     generated_resume_pdf = None
 
     if request.method == "POST":
+        # Handle resume creation
         if "create_resume" in request.POST:
             resume_text = request.session.get("resume_text", "")
-            LATEX_TEMPLATE = r"""\documentclass[a4paper,11pt]{article}
-
-\usepackage[empty]{fullpage}
-\usepackage{titlesec}
-\usepackage[usenames,dvipsnames]{color}
-\usepackage{enumitem}
-\usepackage{hyperref}
-\usepackage{fancyhdr}
-
-\pagestyle{fancy}
-\fancyhf{}
-\renewcommand{\headrulewidth}{0pt}
-
-\addtolength{\oddsidemargin}{-0.5in}
-\addtolength{\textwidth}{1in}
-\addtolength{\topmargin}{-0.5in}
-\addtolength{\textheight}{1in}
-
-\raggedright
-\setlength{\tabcolsep}{0in}
-
-\titleformat{\section}{\scshape\raggedright\large}{}{0em}{}[\color{black}\titlerule \vspace{-4pt}]
-
-% Custom commands
-\newcommand{\resumeItem}[2]{\item\small{\textbf{#1:} #2}}
-\newcommand{\resumeSubheading}[4]{
-  \item
-    \begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
-      \textbf{#1} & #2 \\
-      \textit{#3} & \textit{#4} \\
-    \end{tabular*}
-}
-\newcommand{\resumeSubItem}[2]{\resumeItem{#1}{#2}}
-\renewcommand{\labelitemii}{$\circ$}
-\newcommand{\resumeListStart}{\begin{itemize}[leftmargin=*]}
-\newcommand{\resumeListEnd}{\end{itemize}}
-
-\begin{document}
-
-% HEADER
-\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
-  \textbf{\LARGE {Your Name}} & Email: \href{mailto:your@email.com}{your@email.com} \\
-  Phone: +91-XXXXXXXXXX & \href{https://github.com/username}{GitHub: username} \\
-  & \href{https://linkedin.com/in/username}{LinkedIn: username} \\
-\end{tabular*}
-
-% EDUCATION
-\section{Education}
-\resumeListStart
-  \resumeSubheading
-    {University Name}{City, Country}
-    {Degree / Major}{Start – End}
-\resumeListEnd
-
-% SKILLS
-\section{Skills}
-\resumeListStart
-  \resumeItem{Languages}{Python, SQL, R, JavaScript}
-  \resumeItem{Frameworks}{Django, Flask, TensorFlow}
-  \resumeItem{Tools}{Power BI, Git, Azure}
-\resumeListEnd
-
-% EXPERIENCE
-\section{Experience}
-\resumeListStart
-  \resumeSubheading
-    {Company Name}{Location}
-    {Job Title}{Start – End}
-    \resumeListStart
-      \item {Key responsibility or achievement.}
-      \item {Another responsibility with measurable outcome.}
-    \resumeListEnd
-\resumeListEnd
-
-% PROJECTS
-\section{Projects}
-\resumeListStart
-  \resumeItem{Project Title}{Short description and tech stack used.}
-\resumeListEnd
-
-% ACHIEVEMENTS
-\section{Achievements}
-\resumeListStart
-  \item {Achievement or Certification}
-\resumeListEnd
-
-% PUBLICATIONS (Optional)
-\section{Publications}
-\resumeListStart
-  \item {Publication Title – Journal/Conference, Year}
-\resumeListEnd
-
-% VOLUNTEER EXPERIENCE (Optional)
-\section{Volunteer Experience}
-\resumeListStart
-  \item {Role – Organization, Description}
-\resumeListEnd
-
-\end{document}
-"""
 
             prompt = f"""
-You are a professional resume formatter. Rewrite the following resume in ATS-optimized LaTeX format 
-using this structure exactly:
-
-{LATEX_TEMPLATE}
-
+You are an expert resume writer specializing in ATS optimization.
+Rewrite the following resume to maximize ATS compatibility and recruiter appeal for a target role.
 Rules:
-1. Only include sections where content exists.
-2. Do not add placeholders like "Your Name" — use the actual data from the resume.
-3. Keep ATS keywords from the original resume.
-4. Keep formatting exactly as in the LaTeX template.
-5. Do not include explanations or comments — output LaTeX only.
+1. Preserve all correct personal details and experience.
+2. Use standard section headings in ALL CAPS: CONTACT INFORMATION, PROFESSIONAL SUMMARY, SKILLS, EXPERIENCE, EDUCATION, PROJECTS, ACHIEVEMENTS.
+3. Skills: Include only highly relevant, industry-standard keywords from the resume AND job description trends.
+4. Experience: 
+   - List most recent experience first.
+   - For each role: JOB TITLE, COMPANY, LOCATION, DATES.
+   - Use 3–6 bullet points starting with strong action verbs.
+   - Quantify results wherever possible (e.g., “Increased model accuracy by 15%”).
+5. Professional Summary: 3–4 impactful lines with top achievements, core skills, and target keywords.
+6. Education: Degree, institution, location, dates.
+7. Ensure the output is plain text, no markdown, no tables, no fancy formatting.
+8. Keep layout clean, easy to parse, and recruiter-friendly.
 
-Resume:
+Resume to optimize:
 {resume_text}
 """
             response = model.generate_content(prompt)
             generated_resume = response.text
 
-            # Store in session for download
             request.session["generated_resume"] = generated_resume
             ats_score = request.session.get("ats_score")
-            with tempfile.TemporaryDirectory() as tmpdir:
-                tex_path = os.path.join(tmpdir, "resume.tex")
-                pdf_path = os.path.join(tmpdir, "resume.pdf")
 
-                with open(tex_path, "w", encoding="utf-8") as f:
-                    f.write(generated_resume)
+            # Generate PDF using ReportLab (No LaTeX)
+            pdf_buffer = BytesIO()
+            doc = SimpleDocTemplate(pdf_buffer, pagesize=LETTER)
+            styles = getSampleStyleSheet()
+            story = []
 
-                subprocess.run(
-                    ["pdflatex", "-interaction=nonstopmode", tex_path],
-                    cwd=tmpdir,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
-                )
+            for line in generated_resume.split("\n"):
+                if line.strip().isupper():  # Section heading
+                    story.append(Paragraph(line.strip(), styles["Heading2"]))
+                    story.append(Spacer(1, 6))
+                elif line.strip().startswith("* "):  # Bullet point
+                    story.append(Paragraph("• " + line.strip()[2:], styles["Normal"]))
+                elif line.strip():
+                    story.append(Paragraph(line.strip(), styles["Normal"]))
+                story.append(Spacer(1, 4))
 
-                with open(pdf_path, "rb") as f:
-                    pdf_data = f.read()
+            doc.build(story)
+            pdf_data = pdf_buffer.getvalue()
+            pdf_buffer.close()
 
-            # Encode for HTML iframe
             generated_resume_pdf = base64.b64encode(pdf_data).decode("utf-8")
-
-            ats_score = request.session.get("ats_score")
-
             comments = request.session.get("comments")
 
+        # Handle improvement suggestions
         elif "improve" in request.POST:
             resume_text = request.session.get("resume_text", "")
-
-            prompt = f"""
-You are an expert resume coach. Analyze the following resume and give detailed suggestions to improve it.
-
-Resume:
-{resume_text}
-"""
+            prompt = f"You are an expert resume coach. Analyze the following resume and give detailed improvement suggestions:\n\n{resume_text}"
             response = model.generate_content(prompt)
-            suggestions = response.text
+            comments = response.text
             ats_score = request.session.get("ats_score")
-            comments = request.session.get("comments")
 
+        # Handle initial upload & ATS scoring
         else:
             resume_file = request.FILES.get("resume")
             if resume_file:
@@ -219,25 +112,21 @@ Resume:
                 except Exception:
                     return render(request, "Startup_app/form.html", {"error": "Failed to extract text from resume."})
 
-                # ATS scoring
                 prompt = f"""
-                You are an ATS evaluator.
+You are an ATS evaluator.
+1. Give only a score (0-100) on the first line.
+2. Then list 3-5 bullet points about strengths and weaknesses.
 
-                1. Give only a score (0-100) on the first line.
-                2. Then list 3-5 bullet points about strengths and weaknesses.
-
-                Resume:
-                {resume_text}
-                """
+Resume:
+{resume_text}
+"""
                 response = model.generate_content(prompt)
                 raw_output = response.text.strip()
                 first_line = raw_output.splitlines()[0].strip()
-                import re
                 match = re.match(r"^\D*(\d{1,3})\D*$", first_line)
                 ats_score = match.group(1) if match else "N/A"
                 comments = "\n".join(raw_output.splitlines()[1:]).strip()
 
-                # Save for later steps
                 request.session["resume_text"] = resume_text
                 request.session["ats_score"] = ats_score
                 request.session["comments"] = comments
@@ -246,37 +135,28 @@ Resume:
         "ats_score": ats_score,
         "comments": comments,
         "generated_resume_pdf": generated_resume_pdf
-
     })
 
 
-
-
-import subprocess
-import tempfile
-
-
 def download_resume_pdf(request):
-    latex_code = request.session.get("generated_resume")
-    if not latex_code:
+    resume_content = request.session.get("generated_resume")
+    if not resume_content:
         return HttpResponse("No generated resume found.", status=400)
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tex_path = os.path.join(tmpdir, "resume.tex")
-        pdf_path = os.path.join(tmpdir, "resume.pdf")
+    pdf_buffer = BytesIO()
+    doc = SimpleDocTemplate(pdf_buffer, pagesize=LETTER)
+    styles = getSampleStyleSheet()
+    story = []
 
-        with open(tex_path, "w", encoding="utf-8") as f:
-            f.write(latex_code)
+    for line in resume_content.split("\n"):
+        if line.strip():
+            story.append(Paragraph(line.strip(), styles["Normal"]))
+            story.append(Spacer(1, 6))
 
-        # Compile LaTeX → PDF
-        subprocess.run(["pdflatex", "-interaction=nonstopmode", tex_path], cwd=tmpdir)
-
-        with open(pdf_path, "rb") as f:
-            pdf_data = f.read()
+    doc.build(story)
+    pdf_data = pdf_buffer.getvalue()
+    pdf_buffer.close()
 
     response = HttpResponse(pdf_data, content_type="application/pdf")
     response["Content-Disposition"] = 'attachment; filename="ATS_Optimized_Resume.pdf"'
     return response
-
-
-import base64
