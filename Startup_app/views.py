@@ -42,48 +42,50 @@ def resume_analyzer(request):
     generated_resume_pdf = None
 
     if request.method == "POST":
-        # Handle resume creation
+
+        # ==== Handle resume improvement & PDF generation ====
         if "create_resume" in request.POST:
             resume_text = request.session.get("resume_text", "")
 
             prompt = f"""
-You are an expert resume writer specializing in ATS optimization.
-Rewrite the following resume to maximize ATS compatibility and recruiter appeal for a target role.
-Rules:
-1. Preserve all correct personal details and experience.
-2. Use standard section headings in ALL CAPS: CONTACT INFORMATION, PROFESSIONAL SUMMARY, SKILLS, EXPERIENCE, EDUCATION, PROJECTS, ACHIEVEMENTS.
-3. Skills: Include only highly relevant, industry-standard keywords from the resume AND job description trends.
-4. Experience: 
-   - List most recent experience first.
-   - For each role: JOB TITLE, COMPANY, LOCATION, DATES.
-   - Use 3–6 bullet points starting with strong action verbs.
-   - Quantify results wherever possible (e.g., “Increased model accuracy by 15%”).
-5. Professional Summary: 3–4 impactful lines with top achievements, core skills, and target keywords.
-6. Education: Degree, institution, location, dates.
-7. Ensure the output is plain text, no markdown, no tables, no fancy formatting.
-8. Keep layout clean, easy to parse, and recruiter-friendly.
+            You are an expert resume writer and ATS optimization specialist.
 
-Resume to optimize:
-{resume_text}
-"""
+            Your task:
+            - Rewrite the resume below into a FINAL, fully polished, job-ready version.
+            - DO NOT include placeholders like [Institution Name] or [Job Title] — instead, fill gaps with realistic, industry-appropriate content.
+            - Use only standard ATS-friendly section headings in ALL CAPS: CONTACT INFORMATION, PROFESSIONAL SUMMARY, SKILLS, EXPERIENCE, EDUCATION, PROJECTS, ACHIEVEMENTS.
+            - Between each section, insert a plain text divider: ========================== (this will later be styled as a blue line in the PDF).
+            - Keep layout strictly single-column, plain text, and ATS-compliant (no tables, columns, or graphics).
+            - Write Experience bullets starting with strong action verbs, including measurable results where possible.
+            - Skills section must include relevant industry keywords for tech/business roles.
+            - Professional Summary: 3–4 impactful lines summarizing top achievements, expertise, and career goals.
+            - Ensure every section has meaningful, professional-sounding content — infer details if missing.
+            - DO NOT add suggestions, improvement notes, or extra commentary — only output the final resume.
+
+            Resume to rewrite:
+            {resume_text}
+            """
+
             response = model.generate_content(prompt)
-            generated_resume = response.text
+            generated_resume = response.text.strip()
 
+            # Save to session
             request.session["generated_resume"] = generated_resume
             ats_score = request.session.get("ats_score")
+            comments = request.session.get("comments")
 
-            # Generate PDF using ReportLab (No LaTeX)
+            # PDF creation
             pdf_buffer = BytesIO()
             doc = SimpleDocTemplate(pdf_buffer, pagesize=LETTER)
             styles = getSampleStyleSheet()
             story = []
 
             for line in generated_resume.split("\n"):
-                if line.strip().isupper():  # Section heading
+                if line.strip().isupper():
                     story.append(Paragraph(line.strip(), styles["Heading2"]))
                     story.append(Spacer(1, 6))
-                elif line.strip().startswith("* "):  # Bullet point
-                    story.append(Paragraph("• " + line.strip()[2:], styles["Normal"]))
+                elif line.strip().startswith(("-", "*")):
+                    story.append(Paragraph("• " + line.strip().lstrip("-* ").strip(), styles["Normal"]))
                 elif line.strip():
                     story.append(Paragraph(line.strip(), styles["Normal"]))
                 story.append(Spacer(1, 4))
@@ -93,40 +95,48 @@ Resume to optimize:
             pdf_buffer.close()
 
             generated_resume_pdf = base64.b64encode(pdf_data).decode("utf-8")
-            comments = request.session.get("comments")
 
-        # Handle improvement suggestions
+        # ==== Handle suggestions only ====
         elif "improve" in request.POST:
             resume_text = request.session.get("resume_text", "")
-            prompt = f"You are an expert resume coach. Analyze the following resume and give detailed improvement suggestions:\n\n{resume_text}"
+            prompt = f"You are an expert resume coach. Analyze and give actionable improvement suggestions:\n\n{resume_text}"
             response = model.generate_content(prompt)
-            comments = response.text
+            comments = response.text.strip()
             ats_score = request.session.get("ats_score")
+            request.session["comments"] = comments
 
-        # Handle initial upload & ATS scoring
+        # ==== Handle first upload & ATS score ====
         else:
             resume_file = request.FILES.get("resume")
             if resume_file:
                 try:
                     resume_text = extract_text(BytesIO(resume_file.read()))
                 except Exception:
-                    return render(request, "Startup_app/form.html", {"error": "Failed to extract text from resume."})
+                    return render(request, "Startup_app/form.html", {"error": "Failed to read resume."})
 
                 prompt = f"""
-You are an ATS evaluator.
-1. Give only a score (0-100) on the first line.
-2. Then list 3-5 bullet points about strengths and weaknesses.
+You are an ATS (Applicant Tracking System) evaluation expert.
 
-Resume:
+Instructions:
+1. On the first line, output ONLY the ATS score (integer between 0–100, no extra text).
+2. Then provide exactly 4 bullet points:
+   - 2 bullet points for the strongest aspects of the resume.
+   - 2 bullet points for the most important weaknesses or gaps to improve.
+3. Keep the feedback concise, specific, and relevant to ATS optimization for the target industry.
+
+Resume content:
 {resume_text}
 """
+
                 response = model.generate_content(prompt)
                 raw_output = response.text.strip()
+
                 first_line = raw_output.splitlines()[0].strip()
                 match = re.match(r"^\D*(\d{1,3})\D*$", first_line)
                 ats_score = match.group(1) if match else "N/A"
                 comments = "\n".join(raw_output.splitlines()[1:]).strip()
 
+                # Save to session
                 request.session["resume_text"] = resume_text
                 request.session["ats_score"] = ats_score
                 request.session["comments"] = comments
@@ -136,6 +146,7 @@ Resume:
         "comments": comments,
         "generated_resume_pdf": generated_resume_pdf
     })
+
 
 
 def download_resume_pdf(request):
