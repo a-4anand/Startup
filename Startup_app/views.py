@@ -7,9 +7,11 @@ from PyPDF2 import PdfReader
 from django.conf import settings
 from pdfminer.high_level import extract_text
 from io import BytesIO
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, ListFlowable, ListItem
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+import re
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.pagesizes import LETTER
+from reportlab.lib.styles import getSampleStyleSheet
 
 load_dotenv()
 genai.configure(api_key=settings.GEMINI_API_KEY)
@@ -47,54 +49,112 @@ def resume_analyzer(request):
         if "create_resume" in request.POST:
             resume_text = request.session.get("resume_text", "")
 
-            prompt = f"""
+            # Step 1 — Rewrite resume (Professional, ATS-Ready)
+            rewrite_prompt = f"""
             You are an expert resume writer and ATS optimization specialist.
 
-            Your task:
-            - Rewrite the resume below into a FINAL, fully polished, job-ready version.
-            - DO NOT include placeholders like [Institution Name] or [Job Title] — instead, fill gaps with realistic, industry-appropriate content.
-            - Use only standard ATS-friendly section headings in ALL CAPS: CONTACT INFORMATION, PROFESSIONAL SUMMARY, SKILLS, EXPERIENCE, EDUCATION, PROJECTS, ACHIEVEMENTS.
-            - Between each section, insert a plain text divider: ========================== (this will later be styled as a blue line in the PDF).
-            - Keep layout strictly single-column, plain text, and ATS-compliant (no tables, columns, or graphics).
-            - Write Experience bullets starting with strong action verbs, including measurable results where possible.
-            - Skills section must include relevant industry keywords for tech/business roles.
-            - Professional Summary: 3–4 impactful lines summarizing top achievements, expertise, and career goals.
-            - Ensure every section has meaningful, professional-sounding content — infer details if missing.
-            - DO NOT add suggestions, improvement notes, or extra commentary — only output the final resume.
+Task:
+Rewrite the given resume into a **FINAL, job-ready, ATS-optimized resume** targeted to maximize ATS score for a generic tech/business role.
+- Actively improve keyword density by adding relevant industry terms where appropriate.
+- Replace generic verbs with strong action verbs.
+- Emphasize measurable results and achievements.
+- Remove fluff and filler phrases.
+- Keep resume under 1 page (~500 words).
+
+
+            Your goal: Produce a FINAL, **professionally written, ATS-optimized resume** that looks like it was written by a top career coach.
+            - The output must be clean, single-column, plain text.
+            - Keep the entire resume within 1 page (max ~500 words).
+            - Omit any section that does not have relevant details — completely skip the heading if no meaningful content exists.
+            - Do NOT use placeholders like [Institution Name] or "N/A".
+            - Optimize for ANY industry (universal template).
+            - Ensure proper grammar, consistency, and alignment.
+
+            Formatting rules:
+            1. FULL NAME — in bold (will be styled in blue in PDF).
+            2. Contact line: email | phone | LinkedIn | location (skip missing items).
+            3. Between sections, insert exactly this line: ===== BLUE LINE =====
+            4. Keep layout ATS-compliant — no graphics, tables, or special symbols.
+            5. Use strong action verbs and measurable results in bullet points.
+            6. Keep descriptions concise but impactful.
+            7. Only output the final resume — no suggestions, no commentary.
+
+            Preferred section order (only include if not empty):
+            - FULL NAME & Contact
+            - PROFESSIONAL SUMMARY (3–4 lines summarizing expertise and achievements)
+            - SKILLS (grouped into categories like Technical Skills, Tools, Soft Skills)
+            - EXPERIENCE (chronological, with role, company, dates, and 2–4 bullet points)
+            - EDUCATION (degree, institution, dates, and optional coursework)
+            - PROJECTS (title, short description, and 2 bullet points)
+            - ACHIEVEMENTS (bullet points of measurable accomplishments)
 
             Resume to rewrite:
             {resume_text}
             """
 
-            response = model.generate_content(prompt)
-            generated_resume = response.text.strip()
-
-            # Save to session
+            rewrite_response = model.generate_content(rewrite_prompt)
+            generated_resume = rewrite_response.text.strip()
             request.session["generated_resume"] = generated_resume
-            ats_score = request.session.get("ats_score")
-            comments = request.session.get("comments")
 
-            # PDF creation
+
+            # Step 2 — Recalculate ATS score for rewritten resume
+            scoring_prompt = f"""
+            You are an ATS (Applicant Tracking System) evaluation expert.
+
+            Instructions:
+            1. On the first line, output ONLY the ATS score (integer between 0–100, no extra text).
+            2. Then provide exactly 4 bullet points:
+               - 2 strongest aspects of the resume.
+               - 2 most important weaknesses or gaps to improve.
+            3. Keep the feedback concise and ATS-focused.
+
+            Resume content:
+            {generated_resume}
+            """
+            scoring_response = model.generate_content(scoring_prompt)
+            raw_output = scoring_response.text.strip()
+
+            first_line = raw_output.splitlines()[0].strip()
+            match = re.match(r"^\D*(\d{1,3})\D*$", first_line)
+            ats_score = match.group(1) if match else "N/A"
+            comments = "\n".join(raw_output.splitlines()[1:]).strip()
+
+            request.session["ats_score"] = ats_score
+            request.session["comments"] = comments
+
+            # Step 3 — Create PDF
             pdf_buffer = BytesIO()
             doc = SimpleDocTemplate(pdf_buffer, pagesize=LETTER)
             styles = getSampleStyleSheet()
             story = []
 
             for line in generated_resume.split("\n"):
-                if line.strip().isupper():
-                    story.append(Paragraph(line.strip(), styles["Heading2"]))
-                    story.append(Spacer(1, 6))
-                elif line.strip().startswith(("-", "*")):
-                    story.append(Paragraph("• " + line.strip().lstrip("-* ").strip(), styles["Normal"]))
-                elif line.strip():
-                    story.append(Paragraph(line.strip(), styles["Normal"]))
-                story.append(Spacer(1, 4))
+                clean_line = re.sub(r"[*_]{1,2}(.*?)\1?[*_]{1,2}", r"\1", line).strip()
+
+                if "===== BLUE LINE =====" in clean_line:
+                    story.append(Table([[""]], colWidths=[450], style=TableStyle([
+                        ('LINEBELOW', (0, 0), (-1, -1), 2, colors.HexColor("#0D47A1"))
+                    ])))
+                    story.append(Spacer(1, 4))
+                    continue
+                if clean_line.isupper():
+                    story.append(Paragraph(clean_line, styles["Heading2"]))
+                    story.append(Spacer(1, 3))
+                elif clean_line.startswith(("-", "*")):
+                    story.append(Paragraph("• " + clean_line.lstrip("-* ").strip(), styles["Normal"]))
+                elif clean_line:
+                    story.append(Paragraph(clean_line, styles["Normal"]))
+                story.append(Spacer(1, 2))
+
+                if len(generated_resume.split()) > 500:
+                    generated_resume = " ".join(generated_resume.split()[:500])
 
             doc.build(story)
             pdf_data = pdf_buffer.getvalue()
             pdf_buffer.close()
 
             generated_resume_pdf = base64.b64encode(pdf_data).decode("utf-8")
+
 
         # ==== Handle suggestions only ====
         elif "improve" in request.POST:
