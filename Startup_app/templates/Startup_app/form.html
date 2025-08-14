@@ -55,14 +55,10 @@
     <form method="POST" action="{% url 'resume_analyzer' %}" enctype="multipart/form-data">
       {% csrf_token %}
       <input type="file" name="resume" required>
-      <button type="submit">Get ATS Score</button>
+      <button type="submit">Level Up My Resume</button>
     </form>
 
-    <form method="POST" action="{% url 'resume_analyzer' %}">
-      {% csrf_token %}
-      <input type="hidden" name="improve" value="yes">
-      <button type="submit">Create ATS-Friendly Resume</button>
-    </form>
+
   </div>
 </section>
 
@@ -89,7 +85,7 @@
   <form method="POST" action="{% url 'resume_analyzer' %}">
     {% csrf_token %}
     <input type="hidden" name="create_resume" value="yes">
-    <button type="submit">Create ATS-Friendly Resume</button>
+    <button type="submit" class="btn btn-primary" style="text-align: center">Create ATS-Friendly Resume</button>
   </form>
 {% endif %}
 

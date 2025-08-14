@@ -90,7 +90,7 @@ body {
     align-items: center;
     padding: 20px 5%;
     /*background-color: #0a0a0a;*/
-    border-bottom: 1px solid #222;
+    border-bottom: 0px solid #222;
 }
 
 .logo {
