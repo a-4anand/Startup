@@ -50,68 +50,29 @@ body {
 .hero-content {
     position: relative;
     z-index: 2;
+
 }
 /* Hamburger hidden by default (desktop) */
-.menu-toggle {
-  display: none;
-  font-size: 28px;
-  color: white;
-  cursor: pointer;
-}
 
-/* Mobile styles */
-@media screen and (max-width: 768px) {
-  nav {
-    display: none;
-    flex-direction: column;
-    background: #0a0a0a;
-    position: absolute;
-    top: 70px;
-    right: 0;
-    width: 200px;
-    border-left: 1px solid #222;
-    padding: 10px 0;
-  }
-  nav a {
-    margin: 10px 20px;
-    display: block;
-  }
-  .menu-toggle {
-    display: block;
-  }
-  nav.show {
-    display: flex;
-  }
-}
-
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 5%;
-    /*background-color: #0a0a0a;*/
-    border-bottom: 0px solid #222;
-}
 
 .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
+  font-size: 1.5em;
 }
 
-.logo .highlight {
-    color: #38f9d7;
+.highlight {
+  color: #38f9d7;
 }
 
-nav a {
-    color: white;
-    margin-left: 30px;
-    text-decoration: none;
-    transition: 0.3s;
+
+
+
+.hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
 }
 
-nav a:hover {
-    color: #38f9d7;
-}
+
+
 
 .hero {
     height: 100vh;
@@ -123,10 +84,6 @@ nav a:hover {
     /*background: radial-gradient(circle at 50% 30%, #111 0%, #000 100%);*/
 }
 
-.hero h1 {
-    font-size: 3.5rem;
-    margin-bottom: 20px;
-}
 
 .hero p {
     font-size: 1.2rem;
@@ -150,6 +107,102 @@ nav a:hover {
 .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(0, 247, 209, 0.3);
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 247, 209, 0.3);
+}
+
+/*navbar section*/
+
+/* Navbar shell */
+.navbar {
+  position: sticky; /* or fixed if you prefer */
+  top: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+    background: #0b0c10;
+  color: #fff;
+}
+
+.logo { font-size: 1.5rem; font-weight: 600; margin-left: 20px; }
+.highlight { color: #38f9d7; }
+
+/* Hamburger (visible on both) */
+.menu-toggle {
+  font-size: 28px;
+  line-height: 1;
+  background: transparent;
+  color: #fff;
+  border: 0;
+  cursor: pointer;
+  z-index: 2002; /* above the panel */
+    margin-right: 20px;
+}
+
+/* Off-canvas panel (hidden by default via translate) */
+.nav-links {
+  position: fixed;
+  top: 0;
+  right: -300px; /* hidden off-screen */
+  height: 100%;
+  width: 250px;
+
+  /* Frosted glass effect */
+  background: rgb(56, 249, 215, 0.15); /* light transparent white */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
+
+
+  display: flex;
+  flex-direction: column;
+  padding-top: 80px;
+  gap: 20px;
+  transition: right 0.3s ease;
+  z-index: 999;
+}
+
+
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  padding: 10px 20px;
+    margin-left: 50px;
+}
+
+/* Show when active */
+.nav-links.active {
+  right: 0;
+}
+
+/* Hamburger styles */
+.menu-toggle {
+  font-size: 28px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+/* Keep hamburger visible for all screen sizes */
+@media (min-width: 1024px) {
+  .menu-toggle {
+    display: block;
+  }
+}
+
+
+
+
+/* Optional: body lock when nav open (prevents background scroll) */
+body.nav-open {
+  overflow: hidden;
 }
 
 

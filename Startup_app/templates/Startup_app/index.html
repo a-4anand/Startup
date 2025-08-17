@@ -9,11 +9,12 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'Startup_app/css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <script src="{% static 'Startup_app/js/script.js' %}"></script>
 <!-- AOS Library CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
 
 
@@ -21,19 +22,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-   <div class="navbar">
+<div class="navbar">
   <div class="logo">Rezume<span class="highlight">Ai</span></div>
-  <nav id="nav-links">
+
+  <!-- off-canvas panel -->
+  <nav id="nav-links" class="nav-links">
     <a href="/">Home</a>
     <a href="#features">Features</a>
     <a href="#about">About</a>
     <a href="#pricing">Pricing</a>
-    <a href="#contact">Contact</a>
+    <a href="{% url 'login' %}">Login</a>
+    <a href="{% url 'register' %}">Register</a>
+    <a href="{% url 'logout' %}">Logout</a>
   </nav>
-  <div class="menu-toggle" id="menu-toggle">
-    &#9776; <!-- Hamburger icon -->
-  </div>
+
+  <!-- hamburger (shows on both desktop & mobile) -->
+  <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false">
+    &#9776;
+  </button>
 </div>
+
 
 
     <div class="video-background">
@@ -41,6 +49,44 @@
     <source src="{% static 'Startup_app/images/2611250-uhd_3840_2160_30fps.mp4' %}" type="video/mp4">
   </video>
 </div>
+{% if messages %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+/* Frosted glass style */
+.swal2-popup.frost-glass {
+    background: rgb(56, 249, 215, 0.15); !important;
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+.swal2-title {
+    color: #fff !important;
+}
+.swal2-html-container {
+    color: #f0f0f0 !important;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    {% for message in messages %}
+        Swal.fire({
+            icon: "{% if 'success' in message.tags %}success{% elif 'error' in message.tags %}error{% else %}info{% endif %}",
+            title: "{{ message|escapejs }}",
+            confirmButtonColor: '#38f9d7',
+            customClass: {
+                popup: 'frost-glass'
+            },
+            background: 'transparent',
+            allowOutsideClick: false
+        });
+    {% endfor %}
+});
+</script>
+{% endif %}
+
 
     <section class="hero">
        <div class="hero-content">
@@ -50,12 +96,11 @@
            optimizes it for Applicant Tracking Systems,
            and delivers a polished, professional PDF that gets noticed.</p>
 
-<div class="hero-buttons">
-    <a href="{% url 'form' %}" class="btn-primary">Start My Journey</a>
+          <a href="{% url 'form' %}" class="btn-primary">Start My Journey</a>
 
-        </div>
-    </section>
 
+
+  </section>
 <section class="features-section" id="features" data-aos="fade-up">
   <div class="container" data-aos="fade-up" data-aos-delay="200" >
     <h2 class="section-title">What SkillSnap AI Offers</h2>
@@ -219,7 +264,10 @@
 <!--  menu toggle-->
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 <script src="{% static 'Startup_app/js/script.js' %}"></script>
+<!-- put your script include at the END of body or use defer -->
 
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

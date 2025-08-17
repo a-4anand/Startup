@@ -9,31 +9,38 @@
     <title>SkillSnap AI - Home</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'Startup_app/css/style.css' %}">
-  <script src="{% static 'Startup_app/js/script.js' %}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
 <!-- AOS Library CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
 
-<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+
+
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 <div class="navbar">
-  <div class="logo">My<span class="highlight">Logo</span></div>
-  <nav id="nav-links">
+  <div class="logo">Rezume<span class="highlight">Ai</span></div>
+
+  <!-- off-canvas panel -->
+  <nav id="nav-links" class="nav-links">
     <a href="/">Home</a>
     <a href="#features">Features</a>
     <a href="#about">About</a>
     <a href="#pricing">Pricing</a>
-    <a href="#contact">Contact</a>
+    <a href="{% url 'login' %}">Login</a>
+    <a href="{% url 'register' %}">Register</a>
+    <a href="{% url 'logout' %}">Logout</a>
   </nav>
-  <div class="menu-toggle" id="menu-toggle">
-    &#9776; <!-- Hamburger icon -->
-  </div>
+
+  <!-- hamburger (shows on both desktop & mobile) -->
+  <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false">
+    &#9776;
+  </button>
 </div>
 
 
@@ -61,6 +68,7 @@
 
   </div>
 </section>
+
 
 <!-- Add feedback section here -->
 <section class="ai-feedback-section">
