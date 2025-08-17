@@ -12,10 +12,191 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.styles import getSampleStyleSheet
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
+import random
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+import google.api_core.exceptions
 
 load_dotenv()
 genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-1.5-pro', generation_config={"temperature": 0.3})
+
+# views.py
+
+
+def send_otp_email(email, otp):
+    subject = "Your OTP for Registration"
+    message = f"Your OTP for registration is {otp}. Please do not share this with anyone."
+    from_email = "your-email@example.com"  # Update with your email
+    recipient_list = [email]
+    send_mail(subject, message, from_email, recipient_list)
+
+def user_register(request):
+    if request.user.is_authenticated:
+        messages.info(request, "You are already Registered")
+        return redirect('index')
+
+    if request.method == 'POST':
+        # Get data from the registration form
+        email = request.POST.get('email')
+        username = request.POST.get('username')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+
+        if not email:
+            return render(request, 'Startup_app/register.html', {
+                "error": "Email is required"
+            })
+
+        if not username:
+            return render(request, 'Startup_app/register.html', {
+                "error": "Username is required"
+            })
+
+        if len(password1) < 8:
+            return render(request, 'Startup_app/register.html', {
+                "error": "Password is too short."
+            })
+        if password1.isdigit():
+            return render(request, 'Startup_app/register.html', {
+                "error": "Password cannot be entirely numeric."
+            })
+
+        if password1.lower() in ['password', '12345678', 'qwerty', 'admin']:
+            return render(request, 'Startup_app/register.html', {
+                "error": "Password is too common."
+            })
+
+        if not re.search(r"[A-Za-z]", password1):
+            return render(request, 'Startup_app/register.html', {
+                "error": "Password must contain at least one letter."
+            })
+
+        if not re.search(r"[0-9]", password1):
+            return render(request, 'Startup_app/register.html', {
+                "error": "Password must contain at least one digit."
+            })
+
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password1):
+            return render(request, 'Startup_app/register.html', {
+                "error": "Password must contain at least one special character."
+            })
+
+        if password1 != password2:
+            return render(request, 'Startup_app/register.html',{
+                "error": "Passwords does not match"
+            })
+
+
+
+        # Generate OTP and send it via email
+        otp = random.randint(100000, 999999)
+        send_otp_email(email, otp)
+
+        # Store the OTP and email in the session
+        request.session['otp'] = otp
+        request.session['email'] = email
+        request.session['username'] = username
+        request.session['password1'] = password1
+        request.session['password2'] = password2
+
+        # Redirect to OTP verification page
+        return redirect('otp_verify')
+
+    # Initial form load for GET request
+    form = UserCreationForm()
+    return render(request, 'Startup_app/register.html', {
+        "form": form
+    })
+
+
+def otp_verify_view(request):
+    print("Session data:", request.session.items())
+    if request.method == 'POST':
+        # Get OTP entered by the user
+        otp_entered = request.POST.get('otp')
+        stored_otp = request.session.get('otp')
+
+        if not otp_entered:
+            return render(request, 'Startup_app/otp-verify.html', {
+                "error": "OTP is required"
+            })
+
+        # Validate OTP
+        if otp_entered != str(stored_otp):
+            return render(request, 'Startup_app/otp-verify.html', {
+                "error": "Invalid OTP. Please try again."
+            })
+
+        # OTP is correct, so create the user
+        email = request.session.get('email')
+        username = request.session.get('username')
+        password1 = request.session.get('password1')
+        password2 = request.session.get('password2')
+
+        # Create the user
+        form = UserCreationForm({
+            'username': username,
+            'email': email,
+            'password1': password1,
+            'password2': password2
+        })
+
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+
+            request.session.pop('otp', None)
+            request.session.pop('email', None)
+            request.session.pop('username', None)
+            request.session.pop('password1', None)
+            request.session.pop('password2', None)
+
+            return redirect('index')
+
+        return render(request, 'Startup_app/otp-verify.html', {
+            "error": "The Email is already registered or There was an issue with your registration."
+        })
+
+
+    return render(request, 'Startup_app/otp-verify.html')
+
+
+
+def user_login(request):
+    if request.user.is_authenticated:
+        messages.info(request, "You are already logged in")
+        return redirect('index')  # Redirect so the popup shows on home page
+
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            messages.success(request, "Login successful!")
+            return redirect('index')
+        else:
+            messages.error(request, "Invalid username or password!")
+
+    return render(request, "Startup_app/login.html")
+
+
+def user_logout(request):
+    logout(request)
+    messages.success(request, "Logged out successfully!")
+    return redirect("index")
+
+
+
 
 
 def index(request):
@@ -33,6 +214,7 @@ def extract_text_from_pdf(uploaded_file):
         if page.extract_text():
             text += page.extract_text()
     return text
+
 
 
 
@@ -208,7 +390,7 @@ Resume content:
     })
 
 
-
+@login_required
 def download_resume_pdf(request):
     resume_content = request.session.get("generated_resume")
     if not resume_content:
@@ -231,3 +413,4 @@ def download_resume_pdf(request):
     response = HttpResponse(pdf_data, content_type="application/pdf")
     response["Content-Disposition"] = 'attachment; filename="ATS_Optimized_Resume.pdf"'
     return response
+
