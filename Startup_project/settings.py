@@ -25,7 +25,7 @@ GEMINI_API_KEY = config('GEMINI_API_KEY')
 SECRET_KEY = 'django-insecure-y5^i$))+t8)t%xgzlruk!npp30xr=-z@6uo6!tfawunrp=d8gc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     'rezoome.azurewebsites.net',

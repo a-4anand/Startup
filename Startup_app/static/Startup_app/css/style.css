@@ -115,86 +115,98 @@ body {
 
 /*navbar section*/
 
-/* Navbar shell */
-.navbar {
-  position: sticky; /* or fixed if you prefer */
-  top: 0;
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-    background: #0b0c10;
-  color: #fff;
+nav {
+    position: fixed;
+    top: 0;
+    left: -300px; /* hidden off screen (left side now) */
+    width: 300px;
+    height: 100%;
+    background: rgba(72, 91, 91, 0.5);
+    transition: left 0.4s ease;
+    padding: 20px;
+    z-index: 999;
 }
 
-.logo { font-size: 1.5rem; font-weight: 600; margin-left: 20px; }
-.highlight { color: #38f9d7; }
+nav.active {
+    left: 0; /* slide in from left */
+}
 
-/* Hamburger (visible on both) */
 .menu-toggle {
-  font-size: 28px;
-  line-height: 1;
-  background: transparent;
-  color: #fff;
-  border: 0;
-  cursor: pointer;
-  z-index: 2002; /* above the panel */
-    margin-right: 20px;
+    position: fixed;
+    top: 20px;
+    left: 20px; /* moved toggle to left */
+    width: 30px;
+    height: 25px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 1000;
 }
 
-/* Off-canvas panel (hidden by default via translate) */
-.nav-links {
-  position: fixed;
-  top: 0;
-  right: -300px; /* hidden off-screen */
-  height: 100%;
-  width: 250px;
-
-  /* Frosted glass effect */
-  background: rgb(56, 249, 215, 0.15); /* light transparent white */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px); /* Safari support */
-
-
-  display: flex;
-  flex-direction: column;
-  padding-top: 80px;
-  gap: 20px;
-  transition: right 0.3s ease;
-  z-index: 999;
-}
-
-
-
-.nav-links a {
-  color: white;
-  text-decoration: none;
-  font-size: 18px;
-  padding: 10px 20px;
-    margin-left: 50px;
-}
-
-/* Show when active */
-.nav-links.active {
-  right: 0;
-}
-
-/* Hamburger styles */
-.menu-toggle {
-  font-size: 28px;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  z-index: 1000;
-}
-
-/* Keep hamburger visible for all screen sizes */
-@media (min-width: 1024px) {
-  .menu-toggle {
+.menu-toggle span {
     display: block;
-  }
+    height: 3px;
+    width: 100%;
+    background: #fff;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* Animation for X icon */
+.menu-toggle.open span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+.menu-toggle.open span:nth-child(2) {
+    opacity: 0;
+}
+.menu-toggle.open span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+
+nav a {
+    color: rgb(251, 250, 249);
+    padding: 10px;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
+
+.nav-divider {
+    width: 70%;
+    height: 2px;
+    margin: 20px auto;
+    border-radius: 5px;
+}
+
+nav a:hover {
+    background: #38f9d7;
+    color: #0b0c10;
+    border-radius: 5px;
+}
+
+/* Ensure visibility on larger screens */
+@media (min-width: 1024px) {
+    nav {
+        left: -300px; /* keep it hidden off-screen */
+        display: block;
+    }
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5%;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo img {
+    height: 100px;
 }
 
 
