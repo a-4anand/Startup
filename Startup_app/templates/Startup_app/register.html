@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register - SkillSnap AI</title>
+  <link rel="stylesheet" href="{% static 'Startup_app/css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+  <!-- 🔹 Navbar -->
+  <header>
+    <div class="logo">
+
+    </div>
+    <nav>
+      <a href="/">⬅ Back</a>
+      <div class="nav-divider"></div>
+      <a href="/">Home</a>
+      <a href="{% url 'login' %}">Login</a>
+      <a href="{% url 'register' %}" class="active">Register</a>
+      <div class="nav-divider"></div>
+      <a href="#about">About</a>
+      <a href="#">Contact</a>
+    </nav>
+  </header>
+
+  <!-- 🔹 Video Background -->
+  <div class="video-background">
+    <video autoplay muted loop playsinline>
+      <source src="{% static 'Startup_app/images/2611250-uhd_3840_2160_30fps.mp4' %}" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- 🔹 Register Form -->
+  <div id="register-page-container">
+    <div id="register-page-box">
+      <!-- Form Container -->
+      <div id="register-page-form">
+        <h2>Create Your Account</h2>
+        <form method="POST">
+          {% csrf_token %}
+          <input type="text" name="username" placeholder="👤 Username" required>
+          <input type="email" name="email" placeholder="📧 Email" required>
+          <input type="password" name="password1" placeholder="🔒 Password" required>
+          <input type="password" name="password2" placeholder="🔒 Confirm Password" required>
+          <button type="submit">Register</button>
+          <div style="margin-top:15px; text-align:center; font-size:0.95rem; color:#ddd;">
+
+
+            <a href="{% url 'login' %}"
+       style="color:#1b6d85; text-decoration:none; font-weight:500; border-bottom:1px solid transparent; transition:all 0.3s ease;"
+       onmouseover="this.style.color='#fff'; this.style.borderBottom='1px solid #1b6d85';"
+       onmouseout="this.style.color='#1b6d85'; this.style.borderBottom='1px solid transparent';">
+       Already have Account | Login
+    </a>
+          </div>
+        </form>
+        {% if error %}
+          <div style="color: red; margin-top:10px; font-weight: bold">
+            {{ error }}
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔹 Menu Toggle Script -->
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+      const nav = document.querySelector("nav");
+      const menuToggle = document.createElement("div");
+
+      menuToggle.innerHTML = `<span></span><span></span><span></span>`;
+      menuToggle.classList.add("menu-toggle");
+
+      nav.parentNode.insertBefore(menuToggle, nav);
+
+      menuToggle.addEventListener("click", function () {
+          nav.classList.toggle("active");
+          menuToggle.classList.toggle("open");
+          document.body.classList.toggle("nav-open");
+      });
+  });
+  </script>
+
+</body>
+</html>

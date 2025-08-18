@@ -165,7 +165,7 @@ def otp_verify_view(request):
         })
 
 
-    return render(request, 'Startup_app/otp-verify.html')
+    return render(request, 'Startup_app/password/otp-verify.html')
 
 
 
@@ -194,6 +194,9 @@ def user_logout(request):
     logout(request)
     messages.success(request, "Logged out successfully!")
     return redirect("index")
+
+def profile_view(request):
+    return render(request,"Startup_app/profile.html")
 
 
 

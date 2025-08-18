@@ -50,68 +50,29 @@ body {
 .hero-content {
     position: relative;
     z-index: 2;
+
 }
 /* Hamburger hidden by default (desktop) */
-.menu-toggle {
-  display: none;
-  font-size: 28px;
-  color: white;
-  cursor: pointer;
-}
 
-/* Mobile styles */
-@media screen and (max-width: 768px) {
-  nav {
-    display: none;
-    flex-direction: column;
-    background: #0a0a0a;
-    position: absolute;
-    top: 70px;
-    right: 0;
-    width: 200px;
-    border-left: 1px solid #222;
-    padding: 10px 0;
-  }
-  nav a {
-    margin: 10px 20px;
-    display: block;
-  }
-  .menu-toggle {
-    display: block;
-  }
-  nav.show {
-    display: flex;
-  }
-}
-
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 5%;
-    /*background-color: #0a0a0a;*/
-    border-bottom: 0px solid #222;
-}
 
 .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
+  font-size: 1.5em;
 }
 
-.logo .highlight {
-    color: #38f9d7;
+.highlight {
+  color: #38f9d7;
 }
 
-nav a {
-    color: white;
-    margin-left: 30px;
-    text-decoration: none;
-    transition: 0.3s;
+
+
+
+.hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
 }
 
-nav a:hover {
-    color: #38f9d7;
-}
+
+
 
 .hero {
     height: 100vh;
@@ -123,10 +84,6 @@ nav a:hover {
     /*background: radial-gradient(circle at 50% 30%, #111 0%, #000 100%);*/
 }
 
-.hero h1 {
-    font-size: 3.5rem;
-    margin-bottom: 20px;
-}
 
 .hero p {
     font-size: 1.2rem;
@@ -150,6 +107,114 @@ nav a:hover {
 .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(0, 247, 209, 0.3);
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 247, 209, 0.3);
+}
+
+/*navbar section*/
+
+nav {
+    position: fixed;
+    top: 0;
+    left: -300px; /* hidden off screen (left side now) */
+    width: 300px;
+    height: 100%;
+    background: rgba(72, 91, 91, 0.5);
+    transition: left 0.4s ease;
+    padding: 20px;
+    z-index: 999;
+}
+
+nav.active {
+    left: 0; /* slide in from left */
+}
+
+.menu-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px; /* moved toggle to left */
+    width: 30px;
+    height: 25px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 1000;
+}
+
+.menu-toggle span {
+    display: block;
+    height: 3px;
+    width: 100%;
+    background: #fff;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* Animation for X icon */
+.menu-toggle.open span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+.menu-toggle.open span:nth-child(2) {
+    opacity: 0;
+}
+.menu-toggle.open span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+
+nav a {
+    color: rgb(251, 250, 249);
+    padding: 10px;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
+
+.nav-divider {
+    width: 70%;
+    height: 2px;
+    margin: 20px auto;
+    border-radius: 5px;
+}
+
+nav a:hover {
+    background: #38f9d7;
+    color: #0b0c10;
+    border-radius: 5px;
+}
+
+/* Ensure visibility on larger screens */
+@media (min-width: 1024px) {
+    nav {
+        left: -300px; /* keep it hidden off-screen */
+        display: block;
+    }
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5%;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo img {
+    height: 100px;
+}
+
+
+
+
+/* Optional: body lock when nav open (prevents background scroll) */
+body.nav-open {
+  overflow: hidden;
 }
 
 
@@ -249,12 +314,11 @@ nav a:hover {
   flex: 1 1 300px;
   text-align: center;
   padding: 20px;
-    margin-top: 20px;
 }
 
 .about-image img {
   width: 100%;
-  max-width: 400px;
+  max-width: 300px;
   border-radius: 20px;
   border: 3px solid #38f9d7;
 }

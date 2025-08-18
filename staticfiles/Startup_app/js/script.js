@@ -1,24 +1,15 @@
-// Initialize AOS after DOM load
 document.addEventListener("DOMContentLoaded", function () {
-
-    // Initialize AOS animations
-    AOS.init();
-
-    // Menu toggle
-    const menuToggle = document.getElementById("menu-toggle");
-    const navLinks = document.getElementById("nav-links");
-    if (menuToggle && navLinks) {
-        menuToggle.addEventListener("click", () => {
-            navLinks.classList.toggle("show");
-        });
+    // ✅ Initialize AOS animations
+    if (typeof AOS !== "undefined") {
+        AOS.init();
     }
 
-    // ATS Score Animation
+    // ✅ ATS Score Animation
     const scoreElement = document.getElementById("ats-score2");
     if (scoreElement) {
         const finalScore = parseInt(scoreElement.getAttribute("data-score"), 10);
         let currentScore = 0;
-        const duration = 1500; // ms
+        const duration = 1500;
         const increment = finalScore / (duration / 30);
 
         const timer = setInterval(() => {
@@ -31,21 +22,20 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 30);
     }
 
-    // Scroll to ATS score
+    // ✅ Scroll animations
     const atsBox = document.getElementById("ats_score");
     if (atsBox) {
         atsBox.scrollIntoView({ behavior: "smooth", block: "start" });
         setTimeout(() => atsBox.classList.add("show"), 500);
     }
 
-    // Scroll to suggestions
     const suggestionsBox = document.getElementById("suggestions-section");
     if (suggestionsBox) {
         suggestionsBox.scrollIntoView({ behavior: "smooth", block: "start" });
         setTimeout(() => suggestionsBox.classList.add("show"), 500);
     }
 
-    // Loader on form submit
+    // ✅ Loader on form submit
     const forms = document.querySelectorAll("form");
     const loader = document.getElementById("loading-overlay");
     if (loader) {
@@ -55,4 +45,27 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
+
+
+
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const menuToggle = document.getElementById("menu-toggle");
+  const navLinks = document.getElementById("nav-links");
+
+  if (!menuToggle || !navLinks) return;
+
+  menuToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    navLinks.classList.toggle("active");
+  });
+
+  // Close nav when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
+      navLinks.classList.remove("active");
+    }
+  });
 });

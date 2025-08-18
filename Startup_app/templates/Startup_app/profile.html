@@ -62,6 +62,42 @@
     <source src="{% static 'Startup_app/images/2611250-uhd_3840_2160_30fps.mp4' %}" type="video/mp4">
   </video>
 </div>
+
+  <div class="profile-container" data-aos="fade-up">
+    {% if user.is_authenticated %}
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <i class="fa fa-user-circle"></i>
+        </div>
+        <h1 class="profile-username">{{ user.username }}</h1>
+    </div>
+
+    <div class="profile-details">
+        <div class="detail-item">
+            <span class="detail-label">👤 Member Since:</span>
+            <span class="detail-value">{{ user.date_joined|date:"M d, Y" }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">⏰ Last Login:</span>
+            <span class="detail-value">{{ user.last_login|date:"M d, Y H:i" }}</span>
+        </div>
+    </div>
+
+    <div class="profile-actions">
+        <button class="btn logout-btn" onclick="window.location.href='{% url 'logout' %}">
+            <i class="fa fa-sign-out-alt"></i> Logout
+        </button>
+        <button class="btn change-password" onclick="window.location.href='{% url 'password_reset' %}'">
+            <i class="fa fa-key"></i> Change Password
+        </button>
+    </div>
+   {% else %}
+        <h2 style="color:black;text-align:center;">
+            <a href="{% url 'login' %}">Please Login</a>
+        </h2>
+    {% endif %}
+</div>
+
 {% if messages %}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
@@ -100,137 +136,6 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 {% endif %}
 
-
-    <section class="hero">
-       <div class="hero-content">
-        <h1>We <span style="color:#38f9d7;">Fix</span> Your Resume.
-            You <span style="color:#38f9d7;">Land</span> the Job.</h1>
-        <p>Our AI-powered tool analyzes your resume,
-           optimizes it for Applicant Tracking Systems,
-           and delivers a polished, professional PDF that gets noticed.</p>
-
-          <a href="{% url 'form' %}" class="btn-primary">Start My Journey</a>
-
-
-
-  </section>
-<section class="features-section" id="features" data-aos="fade-up">
-  <div class="container" data-aos="fade-up" data-aos-delay="200" >
-    <h2 class="section-title">What SkillSnap AI Offers</h2>
-    <div class="features-grid">
-
-      <div class="feature-card" >
-        <i class="fa fa-robot feature-icon"></i>
-        <h3>ATS Score Checker</h3>
-        <p>Instantly analyze your resume to see how well it performs against applicant tracking systems.</p>
-      </div>
-
-      <div class="feature-card">
-        <i class="fa fa-lightbulb feature-icon"></i>
-        <h3>Personalized AI Suggestions</h3>
-        <p>Get tailored feedback to improve clarity, formatting, keywords, and more — all AI-optimized.</p>
-      </div>
-
-      <div class="feature-card">
-        <i class="fa fa-chart-line feature-icon"></i>
-        <h3>Resume Benchmarking</h3>
-        <p>Compare your resume against top industry resumes and see how you stack up.</p>
-      </div>
-
-      <div class="feature-card">
-        <i class="fa fa-file-alt feature-icon"></i>
-        <h3>Real-Time Improvements</h3>
-        <p>Upload your resume and instantly receive actionable edits you can apply right away.</p>
-      </div>
-
-      <div class="feature-card">
-        <i class="fa fa-briefcase feature-icon"></i>
-        <h3>Role-Specific Tailoring</h3>
-        <p>Target your resume for the job you want with suggestions matched to specific roles and industries.</p>
-      </div>
-
-      <div class="feature-card">
-        <i class="fa fa-star feature-icon"></i>
-        <h3>Highlight Key Strengths</h3>
-        <p>Ensure your top achievements and skills stand out to recruiters and hiring managers.</p>
-      </div>
-
-        <div class="feature-card">
-      <i class="fa fa-shield-alt feature-icon"></i>
-      <h3>Privacy & Security</h3>
-      <p>Your data is protected. We never store or share your resume — everything runs securely in real-time.</p>
-    </div>
-
-        <div class="feature-card coming-soon-card">
-      <i class="fa fa-hourglass-half feature-icon"></i>
-      <h3>More Features Coming</h3>
-      <p>We’re constantly working to add new tools and enhancements. Stay tuned!</p>
-    </div>
-
-    </div>
-  </div>
-</section>
-
-<br>
-    <br>
-    <br>
-
-<!--pricing-->
-<!--    -->
-
-    <section id="pricing" class="pricing-section"  data-aos="fade-up" data-aos-delay="400">
-  <h2 class="section-title">Support Us</h2>
-  <div class="pricing-card">
-    <div class="pricing-content">
-      <h3>Donation-Based</h3>
-      <p>Our service is currently free and powered by community support. If you'd like to contribute to the development and growth of this platform, you can donate using the QR code below.</p>
-    </div>
-    <div class="qr-container">
-      <img src="{% static 'Startup_app/images/qr.png' %}" alt="Donate QR Code">
-      <p>Scan to Donate</p>
-    </div>
-  </div>
-</section>
-
-<!--    about section -->
-
-
-
-<section id="about" class="about-section" data-aos="fade-up" data-aos-delay="600">
-  <div class="about-container">
-    <h2 class="about-title">About <span style="color: #38f9d7;">RezumeAI</span></h2>
-
-    <div class="about-card">
-      <!-- About Image -->
-      <div class="about-image">
-        <img src="{% static 'Startup_app/images/img.png' %}" alt="RezumeAI Logo">
-      </div>
-
-      <!-- About Text -->
-      <div class="about-text">
-        <p>
-          <strong style="color: #38f9d7;">RezumeAI</strong> is an AI-powered career toolkit dedicated to helping job seekers
-          create resumes that pass <strong>Applicant Tracking Systems (ATS)</strong>
-          and grab recruiters’ attention.
-        </p>
-        <p>
-          We blend <span style="color: #38f9d7;">cutting-edge artificial intelligence</span> with proven
-          recruitment strategies to deliver personalized, actionable resume insights.
-          Whether you’re a fresh graduate or a seasoned professional,
-          <strong style="color: #38f9d7;">RezumeAI</strong> helps you stand out in
-          a competitive job market.
-        </p>
-
-        <h2 style="margin-top: 20px;">Our <span style="color: #38f9d7;">Mission</span></h2>
-        <p>
-          Our mission is simple — <span style="color: #38f9d7;">turn your resume into an opportunity magnet</span>.
-          By combining AI analysis, ATS optimization, and professional formatting,
-          we ensure your application not only gets seen but remembered.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
 
 
 <!-- Footer Section -->
@@ -301,3 +206,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 </body>
 </html>
+
+
+
+
+
