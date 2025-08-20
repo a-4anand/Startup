@@ -5,7 +5,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SkillSnap AI - Home</title>
+    <link rel="icon" type="image/png" href="{% static 'Startup_app/images/Screenshot_2025-08-19_at_1.22.05_PM-removebg-preview.png' %}">
+    <title>CUVY - Home</title>
+
     {% load static %}
     <link rel="stylesheet" href="{% static 'Startup_app/css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -24,8 +26,8 @@
 <body>
   <header>
         <div class="logo">
-<!--            <img src="#" alt="Second Chapter Logo">-->
-<!--            <h4 href="#">SnapSkill</h4>-->
+            <img src="{% static 'Startup_app/images/Screenshot_2025-08-19_at_1.22.05_PM-removebg-preview.png' %}" alt="Second Chapter Logo">
+
         </div>
 
         <nav>
@@ -39,15 +41,14 @@
 
             <div class="nav-divider"></div>
 
-            <a href="#">Buy Books</a>
-            <a href="#">Sell Books</a>
+
             <a href="#about">About</a>
-            <a href="#">Contact</a>
+            <a href="{% url 'contact' %}">Contact Us</a>
 
             <div class="nav-divider"></div>
 
             <a href="{% url 'profile' %}">View Profile</a>
-            <a href="#">Your Cart</a>
+
             <a href="#">Settings</a>
             <a href="{% url 'logout' %}">Logout</a>
         </nav>
@@ -116,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function() {
   </section>
 <section class="features-section" id="features" data-aos="fade-up">
   <div class="container" data-aos="fade-up" data-aos-delay="200" >
-    <h2 class="section-title">What SkillSnap AI Offers</h2>
+    <h2 class="section-title">What Cuvy AI Offers</h2>
     <div class="features-grid">
 
       <div class="feature-card" >
@@ -198,7 +199,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <section id="about" class="about-section" data-aos="fade-up" data-aos-delay="600">
   <div class="about-container">
-    <h2 class="about-title">About <span style="color: #38f9d7;">RezumeAI</span></h2>
+    <h2 class="about-title">About <span style="color: #38f9d7;">Cuvy</span></h2>
 
     <div class="about-card">
       <!-- About Image -->

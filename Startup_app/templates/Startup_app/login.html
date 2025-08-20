@@ -3,7 +3,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Register - SkillSnap AI</title>
+  <title>Login - CUVY</title>
+    <link rel="icon" type="image/png" href="{% static 'Startup_app/images/Screenshot_2025-08-19_at_1.22.05_PM-removebg-preview.png' %}">
   <link rel="stylesheet" href="{% static 'Startup_app/css/style.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,21 +12,38 @@
 <body>
 
   <!-- 🔹 Navbar -->
-  <header>
-    <div class="logo">
+ <header>
+        <div class="logo">
+            <img src="{% static 'Startup_app/images/Screenshot_2025-08-19_at_1.22.05_PM-removebg-preview.png' %}" alt="Second Chapter Logo">
 
-    </div>
-    <nav>
-      <a href="/">⬅ Back</a>
-      <div class="nav-divider"></div>
-      <a href="/">Home</a>
-      <a href="{% url 'login' %}">Login</a>
-      <a href="{% url 'register' %}" class="active">Register</a>
-      <div class="nav-divider"></div>
-      <a href="#about">About</a>
-      <a href="#">Contact</a>
-    </nav>
-  </header>
+        </div>
+
+        <nav>
+            <a href="/" style="text-decoration: none;">⬅ Back</a>
+
+            <div class="nav-divider"></div>
+
+            <a href="#">Home</a>
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'register' %}">Register</a>
+
+            <div class="nav-divider"></div>
+
+
+            <a href="#about">About</a>
+            <a href="#">Contact Us</a>
+
+            <div class="nav-divider"></div>
+
+            <a href="{% url 'profile' %}">View Profile</a>
+
+            <a href="#">Settings</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </nav>
+
+
+
+    </header>
 
   <!-- 🔹 Video Background -->
   <div class="video-background">

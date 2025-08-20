@@ -194,9 +194,10 @@ nav a:hover {
 }
 
 /* Header */
+/* Header */
 header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end; /* pushes everything to the right */
     align-items: center;
     padding: 15px 5%;
     position: fixed;
@@ -206,7 +207,7 @@ header {
 }
 
 .logo img {
-    height: 100px;
+    height: 40px;
 }
 
 

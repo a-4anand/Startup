@@ -7,13 +7,20 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.index,name='index'),
     path('form/', views.form_view, name='form'),
-    path('resume-analyzer/', views.resume_analyzer, name='resume_analyzer'),
-    path('download-resume-pdf/', views.download_resume_pdf, name='download_resume_pdf'),
+    path('analyze/', views.analyze_resume, name='analyze_resume'),
+
+    # NEW URL for generating the resume after payment
+    path('payment-success/', views.payment_success, name='payment_success'),
+    path('download-resume/', views.download_resume_pdf, name='download_resume_pdf'),
+    path('generate_final_resume/', views.generate_final_resume, name='generate_final_resume'),
+path('generate-final-resume/', views.generate_final_resume),
     path('login/', views.user_login, name='login'),
     path('register/', views.user_register, name='register'),
     path("profile", views.profile_view, name='profile'),
     path('logout/', views.user_logout, name='logout'),
 path('verify-otp/', views.otp_verify_view, name='otp_verify'),
+path("contact/", views.contact_view, name="contact"),
+path("upgrade/", views.upgrade_page, name="upgrade_page"),
     # Password reset URLs
     path('password_reset/', auth_views.PasswordResetView.as_view(template_name='Startup_app/password/password_reset.html'),
          name='password_reset'),

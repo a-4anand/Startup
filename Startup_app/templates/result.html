@@ -1,0 +1,61 @@
+<div class="container mt-5">
+
+    {% if generated_resume_pdf %}
+        <h1 class="text-center mb-4">Your ATS-Optimized Resume is Ready!</h1>
+
+        <div class="row">
+            <div class="col-md-4">
+                <h3>Improved Results</h3>
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">New ATS Score</h5>
+                        <p class="display-4">{{ new_ats_score }}</p>
+                    </div>
+                </div>
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Analysis of New Resume</h5>
+                        <p>{{ new_comments|linebreaksbr }}</p>
+                    </div>
+                </div>
+                <a href="{% url 'download_resume_pdf' %}" class="btn btn-success btn-lg w-100 mt-4">
+                    <i class="fas fa-download"></i> Download PDF
+                </a>
+            </div>
+
+            <div class="col-md-8">
+                <h3>Resume Preview</h3>
+                <div class="card">
+                     <iframe src="data:application/pdf;base64,{{ generated_resume_pdf }}" height="750px" width="100%"></iframe>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <h1 class="text-center mb-4">Initial Resume Analysis</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="text-center">
+                            <h5 class="card-title">Your Initial ATS Score</h5>
+                            <p class="display-4">{{ initial_ats_score }}</p>
+                        </div>
+                        <hr>
+                        <h5 class="card-title mt-4">Strengths & Weaknesses</h5>
+                        <p>{{ initial_comments|linebreaksbr }}</p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <h3>Ready to Improve Your Score?</h3>
+                    <p>Upgrade now to get a professionally rewritten, ATS-optimized resume that will land you more interviews.</p>
+                    <a href="{% url 'upgrade_page' %}" class="btn btn-primary btn-lg">
+                        Upgrade to Create & Download PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+</div>

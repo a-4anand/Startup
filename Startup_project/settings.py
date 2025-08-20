@@ -12,11 +12,16 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from decouple import config
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 GEMINI_API_KEY = config('GEMINI_API_KEY')
 
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/profile'   # where to go after login (optional)
+LOGOUT_REDIRECT_URL = '/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
