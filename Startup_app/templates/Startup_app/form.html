@@ -28,8 +28,8 @@
 <body>
   <header>
         <div class="logo">
-<!--            <img src="#" alt="Second Chapter Logo">-->
-<!--            <h4 href="#">SnapSkill</h4>-->
+            <img src="{% static 'Startup_app/images/Screenshot_2025-08-19_at_1.22.05_PM-removebg-preview.png' %}" alt="Second Chapter Logo">
+
         </div>
 
         <nav>
@@ -37,23 +37,27 @@
 
             <div class="nav-divider"></div>
 
-            <a href="#">Home</a>
-            <a href="#">Login</a>
-            <a href="#">Register</a>
+            <a href="{% url 'index' %}">Home</a>
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'register' %}">Register</a>
 
             <div class="nav-divider"></div>
 
-            <a href="#">Buy Books</a>
-            <a href="#">Sell Books</a>
-            <a href="#about">About</a>
-            <a href="#">Contact</a>
+               <a href="{% url 'form' %}">Get ATS Score</a>
+
+            <a href="{% url 'upgrade_page' %}">Upgrade Plan</a>
 
             <div class="nav-divider"></div>
 
-            <a href="#">View Profile</a>
-            <a href="#">Your Cart</a>
-            <a href="#">Settings</a>
-            <a href="#">Logout</a>
+
+            <a href="#about">About Us</a>
+            <a href="{% url 'contact' %}">Contact Us</a>
+
+            <div class="nav-divider"></div>
+
+            <a href="{% url 'profile' %}">View Profile</a>
+
+            <a href="{% url 'logout' %}">Logout</a>
         </nav>
 
 
@@ -147,10 +151,9 @@
 </section>
 
 
-
 <section class="features-section" id="features" data-aos="fade-up">
   <div class="container" data-aos="fade-up" data-aos-delay="200" >
-    <h2 class="section-title">What SkillSnap AI Offers</h2>
+    <h2 class="section-title">What Cuvy AI Offers</h2>
     <div class="features-grid">
 
       <div class="feature-card" >
@@ -210,52 +213,90 @@
     <br>
 
 <!--pricing-->
-<!--    -->
+ <section class="how-it-works">
+  <h2 data-aos="fade-up">How <span >Cuvy</span> Works</h2>
+  <p class="intro" data-aos="fade-up" data-aos-delay="50">
+    Did you know? <strong>Over 75% of resumes are rejected</strong> by companies before even reaching a recruiter — all because they fail the <strong></strong> (Applicant Tracking System)</strong> check.
+    That’s where <strong>Cuvy</strong> helps you stand out.
+  </p>
 
-    <section id="pricing" class="pricing-section"  data-aos="fade-up" data-aos-delay="400">
-  <h2 class="section-title">Support Us</h2>
-  <div class="pricing-card">
-    <div class="pricing-content">
-      <h3>Donation-Based</h3>
-      <p>Our service is currently free and powered by community support. If you'd like to contribute to the development and growth of this platform, you can donate using the QR code below.</p>
+  <div class="steps">
+    <div class="step" data-aos="zoom-in" data-aos-delay="100">
+      <i class="fa-solid fa-magnifying-glass-chart"></i>
+      <h3>Step 1 — Check Your Resume</h3>
+      <p class="intro" >Upload your resume and instantly calculate your ATS score  for free. See how hiring software really views your application.</p>
     </div>
-    <div class="qr-container">
-      <img src="{% static 'Startup_app/images/qr.png' %}" alt="Donate QR Code">
-      <p>Scan to Donate</p>
+
+    <div class="step" data-aos="zoom-in" data-aos-delay="200">
+      <i class="fa-solid fa-lightbulb"></i>
+      <h3>Step 2 — Get AI Suggestions</h3>
+      <p class="intro" >Receive AI-powered insights on missing keywords, formatting issues, and improvements that can boost your chances of selection.</p>
+    </div>
+
+    <div class="step" data-aos="zoom-in" data-aos-delay="300">
+      <i class="fa-solid fa-rocket"></i>
+      <h3>Step 3 — Upgrade for Success</h3>
+      <p class="intro" >For just <strong>₹49 (lifetime)</strong>, get a professionally formatted, recruiter-ready resume. Clean, organized, and ready to make an impact at your next interview.</p>
     </div>
   </div>
+
+  <div class="final-cta" data-aos="fade-up" data-aos-delay="400">
+    <p><strong>Stop getting rejected for the wrong reasons.</strong>
+    Let <span class="highlight">Cuvy</span> turn your resume into your biggest career weapon.</p>
+    <a href="{% url 'upgrade_page' %}" class="btn-upgrade" style="background-color: #38f9d7; color: #0b0f17">Upgrade Now for ₹49</a>
+  </div>
 </section>
+
+
 
 <!--    about section -->
 
 
 
-<!--    -->
 <section id="about" class="about-section" data-aos="fade-up" data-aos-delay="600">
   <div class="about-container">
-    <h2 class="about-title">About Us</h2>
+    <h2 class="about-title">About <span style="color: #38f9d7;">CUVY</span></h2>
 
     <div class="about-card">
-      <!-- Profile Image -->
+      <!-- About Image -->
       <div class="about-image">
-        <img src="{% static 'Startup_app/images/IMG_1572.jpg' %}" alt="Your Photo">
+        <img src="{% static 'Startup_app/images/Gemini_Generated_Image_1pmyde1pmyde1pmy.jpeg' %}" alt="RezumeAI Logo">
       </div>
 
       <!-- About Text -->
-      <div class="about-text">
-        <h3 class="about-name">Anand Kumar Dubey</h3>
-        <p>
-          I am a Data Science enthusiast and Django developer passionate about building intelligent web applications. With experience in machine learning and AI integration, I love bringing ideas to life through code.
-        </p>
+<div class="about-text">
+  <p>
+    <strong style="color: #38f9d7;">CUVY</strong> is a
+    <span style="color: #38f9d7;">AI-powered career accelerator</span>
+    dedicated to empowering job seekers by creating resumes that do more than pass
+    <strong>Applicant Tracking Systems (ATS)</strong> — they stand out and capture recruiters’ attention.
+  </p>
 
-        <h4>About Our Company</h4>
-        <p>
-          At AutoWorth, we specialize in AI-powered solutions for the automobile industry. Our mission is to provide smart, accurate, and efficient tools to help users estimate car prices and make informed decisions.
-        </p>
-      </div>
+  <p>
+    By combining <span style="color: #38f9d7;">cutting-edge artificial intelligence</span>
+    with proven hiring strategies, we deliver
+    <strong>personalized, actionable insights</strong> that elevate your professional profile.
+    From recent graduates to seasoned professionals,
+    <strong style="color: #38f9d7;">CUVY</strong> equips you with the tools and guidance needed
+    to thrive in today’s competitive job market.
+  </p>
+
+
+
+  <h2 style="margin-top: 20px;">Why <span style="color: #38f9d7;">CUVY</span>?</h2>
+  <p>
+    We don’t just create resumes; we craft career-boosting strategies.
+    Our AI-powered platform identifies strengths, uncovers opportunities for improvement,
+    and provides step-by-step guidance to optimize your resume.
+    With CUVY, you gain confidence, clarity, and a competitive edge to reach your career goals faster.
+  </p>
+</div>
+
+
     </div>
   </div>
 </section>
+
 
 <!-- Footer Section -->
 <footer style="background-color: #0d0d0d; color: white; padding: 40px 0;">
@@ -263,8 +304,8 @@
 
     <!-- Brand/Logo -->
     <div style="flex: 1; min-width: 200px; margin-bottom: 20px;">
-      <h2 style="color: #38f9d7;">YourStartup</h2>
-      <p>Empowering the future with tech</p>
+      <h2 style="color: #38f9d7;">CUVY</h2>
+        <p>We <span style="color: #38f9d7;">Fix</span> Your Resume. You <span style="color: #38f9d7;">Land</span> the Job.</p>
     </div>
 
     <!-- Navigation -->
@@ -287,31 +328,45 @@
   </div>
 
   <div style="text-align: center; padding-top: 20px; font-size: 14px; color: #bbb;">
-    &copy; 2025 YourStartup. All rights reserved.
+    &copy; 2025 CUVY. All rights reserved.
   </div>
 </footer>
 
+
+
+
+<!-- Font Awesome CDN for icons -->
+<!-- AOS Library JS -->
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+
 <script src="{% static 'Startup_app/js/script.js' %}"></script>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const nav = document.querySelector("nav");
-    const menuToggle = document.createElement("div");
 
-    menuToggle.innerHTML = `<span></span><span></span><span></span>`;
-    menuToggle.classList.add("menu-toggle");
+    // Only run this script if a <nav> element actually exists on the page
+    if (nav) {
+        const menuToggle = document.createElement("div");
+        menuToggle.innerHTML = `<span></span><span></span><span></span>`;
+        menuToggle.classList.add("menu-toggle");
 
-    nav.parentNode.insertBefore(menuToggle, nav);
+        // Insert the toggle button right before the <nav> element
+        nav.parentNode.insertBefore(menuToggle, nav);
 
-    menuToggle.addEventListener("click", function () {
-        nav.classList.toggle("active");
-        menuToggle.classList.toggle("open");
-        document.body.classList.toggle("nav-open");
-    });
+        // Add the click listener to toggle classes
+        menuToggle.addEventListener("click", function () {
+            nav.classList.toggle("active");
+            menuToggle.classList.toggle("open");
+            document.body.classList.toggle("nav-open");
+        });
+    }
 });
 </script>
-
-
 </body>
 
 </html>

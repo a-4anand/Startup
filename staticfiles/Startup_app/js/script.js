@@ -48,6 +48,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+
+
+
 });
 
 
@@ -68,4 +71,16 @@ document.addEventListener("DOMContentLoaded", () => {
       navLinks.classList.remove("active");
     }
   });
+});
+
+const overlay = document.getElementById("loading-overlay");
+const btn = document.getElementById("start-btn");
+
+btn.addEventListener("click", () => {
+  overlay.style.display = "flex"; // Show overlay
+  // Simulate resume analysis
+  setTimeout(() => {
+    overlay.style.display = "none"; // Hide overlay after 3s
+    alert("Resume analysis complete!");
+  }, 3000);
 });

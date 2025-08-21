@@ -12,7 +12,7 @@
 <body>
 
   <!-- 🔹 Navbar -->
- <header>
+   <header>
         <div class="logo">
             <img src="{% static 'Startup_app/images/Screenshot_2025-08-19_at_1.22.05_PM-removebg-preview.png' %}" alt="Second Chapter Logo">
 
@@ -23,21 +23,26 @@
 
             <div class="nav-divider"></div>
 
-            <a href="#">Home</a>
+            <a href="{% url 'index' %}">Home</a>
             <a href="{% url 'login' %}">Login</a>
             <a href="{% url 'register' %}">Register</a>
 
             <div class="nav-divider"></div>
 
+               <a href="{% url 'form' %}">Get ATS Score</a>
 
-            <a href="#about">About</a>
-            <a href="#">Contact Us</a>
+            <a href="{% url 'upgrade_page' %}">Upgrade Plan</a>
+
+            <div class="nav-divider"></div>
+
+
+            <a href="#about">About Us</a>
+            <a href="{% url 'contact' %}">Contact Us</a>
 
             <div class="nav-divider"></div>
 
             <a href="{% url 'profile' %}">View Profile</a>
 
-            <a href="#">Settings</a>
             <a href="{% url 'logout' %}">Logout</a>
         </nav>
 
@@ -87,26 +92,154 @@
             </div>
         </div>
     </div>
+ <section class="how-it-works">
+  <h2 data-aos="fade-up">How <span >Cuvy</span> Works</h2>
+  <p class="intro" data-aos="fade-up" data-aos-delay="50">
+    Did you know? <strong>Over 75% of resumes are rejected</strong> by companies before even reaching a recruiter — all because they fail the <strong></strong> (Applicant Tracking System)</strong> check.
+    That’s where <strong>Cuvy</strong> helps you stand out.
+  </p>
 
-  <!-- 🔹 Menu Toggle Script -->
-  <script>
-  document.addEventListener("DOMContentLoaded", function () {
-      const nav = document.querySelector("nav");
-      const menuToggle = document.createElement("div");
+  <div class="steps">
+    <div class="step" data-aos="zoom-in" data-aos-delay="100">
+      <i class="fa-solid fa-magnifying-glass-chart"></i>
+      <h3>Step 1 — Check Your Resume</h3>
+      <p class="intro" >Upload your resume and instantly calculate your ATS score  for free. See how hiring software really views your application.</p>
+    </div>
 
-      menuToggle.innerHTML = `<span></span><span></span><span></span>`;
-      menuToggle.classList.add("menu-toggle");
+    <div class="step" data-aos="zoom-in" data-aos-delay="200">
+      <i class="fa-solid fa-lightbulb"></i>
+      <h3>Step 2 — Get AI Suggestions</h3>
+      <p class="intro" >Receive AI-powered insights on missing keywords, formatting issues, and improvements that can boost your chances of selection.</p>
+    </div>
 
-      nav.parentNode.insertBefore(menuToggle, nav);
+    <div class="step" data-aos="zoom-in" data-aos-delay="300">
+      <i class="fa-solid fa-rocket"></i>
+      <h3>Step 3 — Upgrade for Success</h3>
+      <p class="intro" >For just <strong>₹49 (lifetime)</strong>, get a professionally formatted, recruiter-ready resume. Clean, organized, and ready to make an impact at your next interview.</p>
+    </div>
+  </div>
 
-      menuToggle.addEventListener("click", function () {
-          nav.classList.toggle("active");
-          menuToggle.classList.toggle("open");
-          document.body.classList.toggle("nav-open");
-      });
-  });
-  </script>
+  <div class="final-cta" data-aos="fade-up" data-aos-delay="400">
+    <p><strong>Stop getting rejected for the wrong reasons.</strong>
+    Let <span class="highlight">Cuvy</span> turn your resume into your biggest career weapon.</p>
+    <a href="{% url 'upgrade_page' %}" class="btn-upgrade" style="background-color: #38f9d7; color: #0b0f17">Upgrade Now for ₹49</a>
+  </div>
+</section>
 
+
+
+<!--    about section -->
+
+
+
+<section id="about" class="about-section" data-aos="fade-up" data-aos-delay="600">
+  <div class="about-container">
+    <h2 class="about-title">About <span style="color: #38f9d7;">CUVY</span></h2>
+
+    <div class="about-card">
+      <!-- About Image -->
+      <div class="about-image">
+        <img src="{% static 'Startup_app/images/Gemini_Generated_Image_1pmyde1pmyde1pmy.jpeg' %}" alt="RezumeAI Logo">
+      </div>
+
+      <!-- About Text -->
+<div class="about-text">
+  <p>
+    <strong style="color: #38f9d7;">CUVY</strong> is a
+    <span style="color: #38f9d7;">AI-powered career accelerator</span>
+    dedicated to empowering job seekers by creating resumes that do more than pass
+    <strong>Applicant Tracking Systems (ATS)</strong> — they stand out and capture recruiters’ attention.
+  </p>
+
+  <p>
+    By combining <span style="color: #38f9d7;">cutting-edge artificial intelligence</span>
+    with proven hiring strategies, we deliver
+    <strong>personalized, actionable insights</strong> that elevate your professional profile.
+    From recent graduates to seasoned professionals,
+    <strong style="color: #38f9d7;">CUVY</strong> equips you with the tools and guidance needed
+    to thrive in today’s competitive job market.
+  </p>
+
+
+
+  <h2 style="margin-top: 20px;">Why <span style="color: #38f9d7;">CUVY</span>?</h2>
+  <p>
+    We don’t just create resumes; we craft career-boosting strategies.
+    Our AI-powered platform identifies strengths, uncovers opportunities for improvement,
+    and provides step-by-step guidance to optimize your resume.
+    With CUVY, you gain confidence, clarity, and a competitive edge to reach your career goals faster.
+  </p>
+</div>
+
+
+    </div>
+  </div>
+</section>
+
+
+<!-- Footer Section -->
+<footer style="background-color: #0d0d0d; color: white; padding: 40px 0;">
+  <div style="max-width: 1200px; margin: auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; text-align: center;">
+
+    <!-- Brand/Logo -->
+    <div style="flex: 1; min-width: 200px; margin-bottom: 20px;">
+      <h2 style="color: #38f9d7;">CUVY</h2>
+        <p>We <span style="color: #38f9d7;">Fix</span> Your Resume. You <span style="color: #38f9d7;">Land</span> the Job.</p>
+    </div>
+
+    <!-- Navigation -->
+    <div style="flex: 1; min-width: 200px; margin-bottom: 20px;">
+      <h3 style="color: #38f9d7;">Quick Links</h3>
+      <a href="#" style="color: white; text-decoration: none; display: block; margin: 5px 0;">Home</a>
+      <a href="#features" style="color: white; text-decoration: none; display: block; margin: 5px 0;">Features</a>
+      <a href="#about" style="color: white; text-decoration: none; display: block; margin: 5px 0;">About</a>
+      <a href="#pricing" style="color: white; text-decoration: none; display: block; margin: 5px 0;">Pricing</a>
+    </div>
+
+    <!-- Social Icons -->
+    <div style="flex: 1; min-width: 200px; margin-bottom: 20px;">
+      <h3 style="color: #38f9d7;">Connect</h3>
+      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-facebook fa-lg"></i></a>
+      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-twitter fa-lg"></i></a>
+      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-instagram fa-lg"></i></a>
+      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-linkedin fa-lg"></i></a>
+    </div>
+  </div>
+
+  <div style="text-align: center; padding-top: 20px; font-size: 14px; color: #bbb;">
+    &copy; 2025 CUVY. All rights reserved.
+  </div>
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+
+<script src="{% static 'Startup_app/js/script.js' %}"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const nav = document.querySelector("nav");
+
+    // Only run this script if a <nav> element actually exists on the page
+    if (nav) {
+        const menuToggle = document.createElement("div");
+        menuToggle.innerHTML = `<span></span><span></span><span></span>`;
+        menuToggle.classList.add("menu-toggle");
+
+        // Insert the toggle button right before the <nav> element
+        nav.parentNode.insertBefore(menuToggle, nav);
+
+        // Add the click listener to toggle classes
+        menuToggle.addEventListener("click", function () {
+            nav.classList.toggle("active");
+            menuToggle.classList.toggle("open");
+            document.body.classList.toggle("nav-open");
+        });
+    }
+});
+</script>
 </body>
 </html>
 

@@ -25,7 +25,7 @@ from .models import Subscription, Contact
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-
+from django.db.models import F
 
 load_dotenv()
 genai.configure(api_key=settings.GEMINI_API_KEY)
@@ -129,13 +129,21 @@ def user_logout(request):
 @login_required
 def profile_view(request):
     subscription = None
-    if request.user.is_authenticated:
-        try:
-            subscription = Subscription.objects.get(user=request.user)
-        except Subscription.DoesNotExist:
-            subscription = None
+    generations_left = 0
+    try:
+        subscription = Subscription.objects.get(user=request.user)
+        if subscription.is_paid:
+            # Calculate remaining generations
+            generations_left = 5 - subscription.download_count
+            if generations_left < 0:
+                generations_left = 0
+    except Subscription.DoesNotExist:
+        subscription = None
 
-    return render(request, "Startup_app/profile.html", {"subscription": subscription})
+    return render(request, "Startup_app/profile.html", {
+        "subscription": subscription,
+        "generations_left": generations_left
+    })
 def index(request):
     return render(request, 'Startup_app/index.html')
 def form_view(request):
@@ -210,6 +218,16 @@ def generate_final_resume(request):
         if not subscription.is_paid:
             messages.error(request, "You must complete the payment to generate the final resume.")
             return redirect("upgrade_page")
+
+        if subscription.download_count >= 5:
+            messages.error(request,
+                           "You have reached your limit of 5 resume generations. Please purchase again to continue.")
+
+            # IMPORTANT: Expire their current plan to force re-payment
+            subscription.is_paid = False
+            subscription.save()
+
+            return redirect("upgrade_page")
     except Subscription.DoesNotExist:
         messages.error(request, "No subscription found. Please complete the payment process.")
         return redirect("upgrade_page")
@@ -218,7 +236,7 @@ def generate_final_resume(request):
     resume_text = request.session.get('original_resume_text')
     if not resume_text:
         messages.error(request, "Your session has expired. Please analyze your resume again.")
-        return redirect("form_view")
+        return redirect("form")
 
     # --- Step 1: Rewrite the Resume (Same prompt as before) ---
     rewrite_prompt = f"""
@@ -283,6 +301,9 @@ def generate_final_resume(request):
     new_scoring_response = model.generate_content(new_scoring_prompt)
     raw_new_output = new_scoring_response.text.strip()
 
+    subscription.download_count = F('download_count') + 1
+    subscription.save()
+
     new_first_line = raw_new_output.splitlines()[0].strip()
     new_match = re.search(r'\d+', new_first_line)
     ats_score = new_match.group(0) if new_match else "N/A"
@@ -322,41 +343,23 @@ def generate_final_resume(request):
         "comments": comments,
         "generated_resume_pdf": generated_resume_pdf
     })
-
-
-
-
-
-
-
-
-
-
-
+@login_required
+# In your app's views.py file
 
 @login_required
 def download_resume_pdf(request):
-    # Re-check subscription as a security measure
-    try:
-        subscription = Subscription.objects.get(user=request.user)
-        if not subscription.is_paid:
-            messages.error(request, "You must upgrade your plan to download the resume.")
-            return redirect("upgrade_page")
-    except Subscription.DoesNotExist:
-        messages.error(request, "You don't have an active subscription. Please upgrade first.")
-        return redirect("upgrade_page")
-
+    # The generation was the limited action. Download is now free for generated content.
     resume_content = request.session.get("generated_resume")
     if not resume_content:
-        messages.error(request, "Could not find the generated resume. Please analyze it again.")
+        messages.error(request, "Could not find the generated resume in your session. Please generate it again.")
         return redirect("form_view")
 
-    # Use the same PDF generation logic as the preview for consistency
+    # --- PDF Generation Logic (your existing code is fine) ---
     pdf_buffer = BytesIO()
+    # ... (your code to build the PDF document) ...
     doc = SimpleDocTemplate(pdf_buffer, pagesize=LETTER, leftMargin=72, rightMargin=72, topMargin=72, bottomMargin=72)
     styles = getSampleStyleSheet()
     story = []
-
     for line in resume_content.split("\n"):
         clean_line = re.sub(r"[*_]{1,2}(.*?)\1?[*_]{1,2}", r"\1", line).strip()
         if "===== BLUE LINE =====" in clean_line:
@@ -371,7 +374,6 @@ def download_resume_pdf(request):
             story.append(Paragraph("• " + clean_line.lstrip("-* ").strip(), styles["Normal"]))
         elif clean_line:
             story.append(Paragraph(clean_line, styles["Normal"]))
-
     doc.build(story)
     pdf_data = pdf_buffer.getvalue()
     pdf_buffer.close()
@@ -379,11 +381,6 @@ def download_resume_pdf(request):
     response = HttpResponse(pdf_data, content_type="application/pdf")
     response["Content-Disposition"] = 'attachment; filename="ATS_Optimized_Resume.pdf"'
     return response
-
-
-
-# contact us page\
-
 
 from django.contrib import messages
 from .models import Contact

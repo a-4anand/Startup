@@ -28,6 +28,7 @@ class Subscription(models.Model):
     intended_razorpay_order_id = models.CharField(max_length=100,unique=True,null=True,blank=True)
     is_paid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    download_count = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.user.username} - {self.plan}"

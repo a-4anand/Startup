@@ -23,7 +23,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
- <header>
+  <header>
         <div class="logo">
             <img src="{% static 'Startup_app/images/Screenshot_2025-08-19_at_1.22.05_PM-removebg-preview.png' %}" alt="Second Chapter Logo">
 
@@ -34,21 +34,26 @@
 
             <div class="nav-divider"></div>
 
-            <a href="#">Home</a>
+            <a href="{% url 'index' %}">Home</a>
             <a href="{% url 'login' %}">Login</a>
             <a href="{% url 'register' %}">Register</a>
 
             <div class="nav-divider"></div>
 
+               <a href="{% url 'form' %}">Get ATS Score</a>
 
-            <a href="#about">About</a>
-            <a href="#">Contact Us</a>
+            <a href="{% url 'upgrade_page' %}">Upgrade Plan</a>
+
+            <div class="nav-divider"></div>
+
+
+            <a href="#about">About Us</a>
+            <a href="{% url 'contact' %}">Contact Us</a>
 
             <div class="nav-divider"></div>
 
             <a href="{% url 'profile' %}">View Profile</a>
 
-            <a href="#">Settings</a>
             <a href="{% url 'logout' %}">Logout</a>
         </nav>
 
@@ -134,6 +139,22 @@
             <span class="detail-value">Free (Not Upgraded)</span>
         </div>
         {% endif %}
+
+
+        <div class="detail-item">
+            {% if subscription and subscription.is_paid %}
+            <span class="detail-label">🤖Active Purchase:</span>
+
+    <p><strong>Generations Remaining:</strong> {{ generations_left }} out of 5</p>
+    {% if generations_left <= 0 %}
+        <p class="text-danger">You have used all your resume generations.</p>
+        <a href="{% url 'upgrade_page' %}" class="btn btn-success">Purchase Again</a>
+    {% endif %}
+{% else %}
+    {% endif %}
+        </div>
+
+
     </div>
 
     <div class="profile-actions">
