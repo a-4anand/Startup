@@ -35,7 +35,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'rezoome.azurewebsites.net',
     'localhost',
-    '127.0.0.1'
+    '127.0.0.1',
+    'startup-v76d.onrender.com'
 ]
 
 
