@@ -122,6 +122,7 @@ nav {
     width: 300px;
     height: 100%;
     background: rgba(72, 91, 91, 0.5);
+    backdrop-filter: blur(5px);
     transition: left 0.4s ease;
     padding: 20px;
     z-index: 999;
@@ -283,7 +284,7 @@ body.nav-open {
 
 /* About Section */
 .about-section {
-  background-color: #0b0c10;
+  background-color: #0b0f17;
   padding: 80px 0;
   color: white;
 }
@@ -304,7 +305,7 @@ body.nav-open {
 .about-card {
   display: flex;
   flex-wrap: wrap;
-  background-color: #1f1f1f;
+  background-color: #131a24;
   border-radius: 20px;
   padding: 40px;
   box-shadow: 0 10px 20px rgba(0,0,0,0.4);
@@ -319,7 +320,7 @@ body.nav-open {
 
 .about-image img {
   width: 100%;
-  max-width: 300px;
+  max-width: 800px;
   border-radius: 20px;
   border: 3px solid #38f9d7;
 }
@@ -690,15 +691,19 @@ body.nav-open {
 
 /* Profile Page Styling */
 .profile-container {
-    max-width: 700px;
+    max-width: 750px;
     margin: 100px auto;
-    background: rgba(72, 91, 91, 0.3);
-    backdrop-filter: blur(12px);
+    background: rgba(13, 13, 13, 0.6); /* darker glass look */
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
     border-radius: 20px;
     padding: 40px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(56, 249, 215, 0.3);
     text-align: center;
     color: #fff;
+    border: 1px solid rgba(56, 249, 215, 0.3);
+    animation: fadeInUp 1s ease;
 }
 
 .profile-header {
@@ -711,21 +716,23 @@ body.nav-open {
 .profile-avatar {
     width: 120px;
     height: 120px;
-    background: rgba(56,249,215,0.2);
+    background: rgba(56, 249, 215, 0.15);
     border: 3px solid #38f9d7;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 70px;
+    font-size: 60px;
     color: #38f9d7;
     margin-bottom: 15px;
+    box-shadow: 0 0 15px rgba(56, 249, 215, 0.5);
 }
 
 .profile-username {
     font-size: 2rem;
     font-weight: bold;
     color: #38f9d7;
+    text-shadow: 0 0 10px rgba(56, 249, 215, 0.8);
 }
 
 .profile-details {
@@ -736,8 +743,9 @@ body.nav-open {
 .detail-item {
     display: flex;
     justify-content: space-between;
-    padding: 12px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    font-size: 1rem;
 }
 
 .detail-label {
@@ -746,28 +754,205 @@ body.nav-open {
 }
 
 .detail-value {
-    color: #fff;
+    color: #f0f0f0;
 }
 
 .profile-actions {
     display: flex;
-    gap: 15px;
     justify-content: center;
     margin-top: 25px;
 }
 
 .profile-actions .btn {
-    background: #38f9d7;
-    color: #0b0c10;
+    background: linear-gradient(135deg, #38f9d7, #0dcaf0);
+    color: #000;
     border: none;
-    padding: 12px 20px;
-    border-radius: 10px;
+    padding: 14px 24px;
+    border-radius: 12px;
     font-weight: bold;
+    font-size: 1.1rem;
     cursor: pointer;
-    transition: transform 0.2s ease, background 0.3s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(56, 249, 215, 0.6);
 }
 
 .profile-actions .btn:hover {
-    background: #2ac5aa;
-    transform: translateY(-2px);
+    background: linear-gradient(135deg, #0dcaf0, #38f9d7);
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(56, 249, 215, 0.9);
+}
+
+/* Premium Button */
+.premium-btn {
+    background: #38f9d7;
+    color: #000;
+    cursor: not-allowed;
+}
+
+/* Smooth animation */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/*payment page design*/
+
+.pay-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(56,249,215,0.6);
+}
+
+/* How it works */
+
+
+.how-it-works {
+  text-align: center;
+  padding: 60px 20px;
+  background-color: #0b0f17;
+    margin-top: 150px;
+    margin-bottom: 150px;
+
+}
+
+.how-it-works h2 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.how-it-works .intro {
+  max-width: 700px;
+  margin: 0 auto 40px auto;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #444;
+}
+
+.steps {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.step {
+  background: #131a24;;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  width: 300px;
+  transition: transform 0.3s ease;
+}
+
+.step:hover {
+  transform: translateY(-8px);
+}
+
+.step i {
+  font-size: 2rem;
+  color: #0073e6;
+  margin-bottom: 15px;
+}
+
+.final-cta {
+  margin-top: 50px;
+  font-size: 1.2rem;
+}
+
+.btn-upgrade {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 12px 25px;
+  background: #0073e6;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+
+.btn-upgrade:hover {
+  background: #005bb5;
+}
+
+/* CTA */
+.cta {
+  text-align: center;
+  padding: 60px 20px;
+  color: #fff;
+}
+.cta h2 { margin-bottom: 25px; }
+
+
+/* Upgrade Section */
+.upgrade-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  text-align: center;
+  color: #fff;
+}
+
+/* Glassmorphic Pricing Card */
+.pricing-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(56, 249, 215, 0.3);
+  border-radius: 20px;
+  padding: 40px 50px;
+  max-width: 400px;
+  box-shadow: 0 0 20px rgba(56, 249, 215, 0.2);
+  backdrop-filter: blur(12px);
+  animation: fadeIn 1s ease-in-out;
+}
+
+.pricing-card h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.highlight {
+  color: #38f9d7;
+  text-shadow: 0 0 10px rgba(56, 249, 215, 0.8);
+}
+
+.pricing-card p {
+  font-size: 1rem;
+  margin-bottom: 20px;
+  color: #ccc;
+}
+
+.price {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 20px 0;
+  color: #38f9d7;
+}
+.price span {
+  display: block;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+/* Glowing Button */
+.glow-btn {
+  background: linear-gradient(90deg, #38f9d7, #00c6ff);
+  border: none;
+  padding: 15px 35px;
+  font-size: 1.1rem;
+  border-radius: 50px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #000;
+  box-shadow: 0 0 20px rgba(56, 249, 215, 0.6);
+  transition: all 0.3s ease-in-out;
+}
+.glow-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 35px rgba(56, 249, 215, 0.9);
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(20px);}
+  to {opacity: 1; transform: translateY(0);}
 }

@@ -159,4 +159,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'ad3810242@gmail.com'  # Your Gmail address
 EMAIL_HOST_PASSWORD = 'tpjp nmim qnqo vxoa'  # The correct app password
-DEFAULT_FROM_EMAIL = 'AutoWorth Support <ad3810242@gmail.com>'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

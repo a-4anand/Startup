@@ -8,7 +8,6 @@ urlpatterns = [
     path('',views.index,name='index'),
     path('form/', views.form_view, name='form'),
     path('analyze/', views.analyze_resume, name='analyze_resume'),
-
     # NEW URL for generating the resume after payment
     path('payment-success/', views.payment_success, name='payment_success'),
     path('download-resume/', views.download_resume_pdf, name='download_resume_pdf'),

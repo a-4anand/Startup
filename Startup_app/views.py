@@ -21,66 +21,56 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 import google.api_core.exceptions
 import razorpay
 from django.views.decorators.csrf import csrf_exempt
-
-# --- IMPORTANT: Make sure to import your Subscription and Contact models ---
 from .models import Subscription, Contact
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 
 load_dotenv()
 genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-1.5-pro', generation_config={"temperature": 0.3})
 
-# (Your user_register, otp_verify_view, user_login, user_logout, etc. views remain the same)
-# ...
+
 
 def send_otp_email(email, otp):
     subject = "Your OTP for Registration"
     message = f"Your OTP for registration is {otp}. Please do not share this with anyone."
-    from_email = "your-email@example.com"  # Update with your email
+    from_email = "ad3810242@example.com"  # Update with your email
     recipient_list = [email]
     send_mail(subject, message, from_email, recipient_list)
-
 def user_register(request):
     if request.user.is_authenticated:
         messages.info(request, "You are already Registered")
         return redirect('index')
 
     if request.method == 'POST':
-        # Get data from the registration form
-        email = request.POST.get('email')
-        username = request.POST.get('username')
-        password2 = request.POST.get('password2')
-        password1 = request.POST.get('password1')
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            # Don't save yet! Just keep data in session
+            email = form.cleaned_data['email']
+            username = form.cleaned_data['username']
+            password1 = form.cleaned_data['password1']
+            password2 = form.cleaned_data['password2']
 
-        if not email:
-            return render(request, 'Startup_app/register.html', {"error": "Email is required"})
-        if not username:
-            return render(request, 'Startup_app/register.html', {"error": "Username is required"})
-        if len(password1) < 8:
-            return render(request, 'Startup_app/register.html', {"error": "Password is too short."})
-        if password1.isdigit():
-            return render(request, 'Startup_app/register.html', {"error": "Password cannot be entirely numeric."})
-        if password1.lower() in ['password', '12345678', 'qwerty', 'admin']:
-            return render(request, 'Startup_app/register.html', {"error": "Password is too common."})
-        if not re.search(r"[A-Za-z]", password1):
-            return render(request, 'Startup_app/register.html', {"error": "Password must contain at least one letter."})
-        if not re.search(r"[0-9]", password1):
-            return render(request, 'Startup_app/register.html', {"error": "Password must contain at least one digit."})
-        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password1):
-            return render(request, 'Startup_app/register.html', {"error": "Password must contain at least one special character."})
-        if password1 != password2:
-            return render(request, 'Startup_app/register.html',{"error": "Passwords does not match"})
+            # Generate OTP
+            otp = random.randint(100000, 999999)
+            send_otp_email(email, otp)
 
-        otp = random.randint(100000, 999999)
-        send_otp_email(email, otp)
-        request.session['otp'] = otp
-        request.session['email'] = email
-        request.session['username'] = username
-        request.session['password1'] = password1
-        request.session['password2'] = password2
-        return redirect('otp_verify')
+            # Save in session
+            request.session['otp'] = otp
+            request.session['email'] = email
+            request.session['username'] = username
+            request.session['password1'] = password1
+            request.session['password2'] = password2
 
-    form = UserCreationForm()
+            return redirect('otp_verify')
+        else:
+            return render(request, 'Startup_app/register.html', {"form": form, "error": form.errors})
+
+    else:
+        form = CustomUserCreationForm()
+
     return render(request, 'Startup_app/register.html', {"form": form})
 
 def otp_verify_view(request):
@@ -89,23 +79,31 @@ def otp_verify_view(request):
         stored_otp = request.session.get('otp')
 
         if not otp_entered:
-            return render(request, 'Startup_app/otp-verify.html', {"error": "OTP is required"})
+            return render(request, 'Startup_app/password/otp-verify.html', {"error": "OTP is required"})
         if otp_entered != str(stored_otp):
             return render(request, 'Startup_app/password/otp-verify.html', {"error": "Invalid OTP. Please try again."})
 
+        # Retrieve data from session
         email = request.session.get('email')
         username = request.session.get('username')
         password1 = request.session.get('password1')
         password2 = request.session.get('password2')
-        form = UserCreationForm({'username': username, 'email': email, 'password1': password1, 'password2': password2})
 
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            for key in ['otp', 'email', 'username', 'password1', 'password2']:
-                request.session.pop(key, None)
-            return redirect('index')
-        return render(request, 'Startup_app/password/otp-verify.html', {"error": "The Email is already registered or There was an issue with your registration."})
+        # Check if email already exists
+        if User.objects.filter(email=email).exists():
+            return render(request, 'Startup_app/password/otp-verify.html', {"error": "This email is already registered."})
+
+        # Create user now
+        user = User.objects.create_user(username=username, email=email, password=password1)
+
+        login(request, user)
+
+        # Clear session
+        for key in ['otp', 'email', 'username', 'password1', 'password2']:
+            request.session.pop(key, None)
+
+        return redirect('index')
+
     return render(request, 'Startup_app/password/otp-verify.html')
 
 def user_login(request):
@@ -124,26 +122,28 @@ def user_login(request):
         else:
             messages.error(request, "Invalid username or password!")
     return render(request, "Startup_app/login.html")
-
 def user_logout(request):
     logout(request)
     messages.success(request, "Logged out successfully!")
     return redirect("index")
-
 @login_required
 def profile_view(request):
-    return render(request,"Startup_app/profile.html")
+    subscription = None
+    if request.user.is_authenticated:
+        try:
+            subscription = Subscription.objects.get(user=request.user)
+        except Subscription.DoesNotExist:
+            subscription = None
 
+    return render(request, "Startup_app/profile.html", {"subscription": subscription})
 def index(request):
     return render(request, 'Startup_app/index.html')
-
 def form_view(request):
     # Clear previous results from session when visiting the form page
     request.session.pop('ats_score', None)
     request.session.pop('comments', None)
     request.session.pop('generated_resume', None)
     return render(request, 'Startup_app/form.html')
-
 def extract_text_from_pdf(uploaded_file):
     try:
         # Use BytesIO to handle the in-memory file
@@ -155,8 +155,6 @@ def extract_text_from_pdf(uploaded_file):
     except Exception as e:
         print(f"Error extracting text: {e}") # For debugging
         return None
-
-
 def analyze_resume(request):
     if request.method == "POST":
         resume_file = request.FILES.get("resume")
@@ -203,7 +201,6 @@ def analyze_resume(request):
 
     # If GET request, redirect to the form
     return redirect("form_view")
-
 @login_required
 def generate_final_resume(request):
     # --- PAYMENT CHECK ---
@@ -421,6 +418,7 @@ def contact_view(request):
 import razorpay
 from django.views.decorators.csrf import csrf_exempt
 
+@login_required(login_url='/login/')
 def upgrade_page(request):
     client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
@@ -473,3 +471,21 @@ def payment_success(request):
             })
         except Subscription.DoesNotExist:
             return JsonResponse({"status": "failed", "message": "Subscription not found."})
+
+
+
+
+
+class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ("username", "email", "password1", "password2")
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data["email"]
+        if commit:
+            user.save()
+        return user

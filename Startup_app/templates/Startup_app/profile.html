@@ -95,13 +95,12 @@
   </video>
 </div>
 
-  <div class="profile-container" data-aos="fade-up">
-    {% if user.is_authenticated %}
+<div class="profile-container" data-aos="zoom-in">
     <div class="profile-header">
         <div class="profile-avatar">
-            <i class="fa fa-user-circle"></i>
+            <i class="fas fa-user"></i>
         </div>
-        <h1 class="profile-username">{{ user.username }}</h1>
+        <h2 class="profile-username">{{ user.username }}</h2>
     </div>
 
     <div class="profile-details">
@@ -113,22 +112,38 @@
             <span class="detail-label">⏰ Last Login:</span>
             <span class="detail-value">{{ user.last_login|date:"M d, Y H:i" }}</span>
         </div>
+        {% if subscription %}
+        <div class="detail-item">
+            <span class="detail-label">📦 Subscription:</span>
+            <span class="detail-value">
+                {{ subscription.plan }}
+                {% if subscription.is_paid %}
+                    ✅ <span style="color:#38f9d7;">Active</span>
+                {% else %}
+                    ❌ <span style="color:#ff6b6b;">Inactive</span>
+                {% endif %}
+            </span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">🗓 Joined Plan On:</span>
+            <span class="detail-value">{{ subscription.created_at|date:"M d, Y" }}</span>
+        </div>
+        {% else %}
+        <div class="detail-item">
+            <span class="detail-label">📦 Subscription:</span>
+            <span class="detail-value">Free (Not Upgraded)</span>
+        </div>
+        {% endif %}
     </div>
 
     <div class="profile-actions">
-        <button class="btn logout-btn" onclick="window.location.href='{% url 'logout' %}">
-            <i class="fa fa-sign-out-alt"></i> Logout
-        </button>
-        <button class="btn change-password" onclick="window.location.href='{% url 'password_reset' %}'">
-            <i class="fa fa-key"></i> Change Password
-        </button>
-    </div>
-   {% else %}
-        <h2 style="color:black;text-align:center;">
-            <a href="{% url 'login' %}">Please Login</a>
-        </h2>
-    {% endif %}
-</div>
+        {% if subscription and subscription.is_paid %}
+    <button class="btn premium-btn" disabled>✅ Premium Active</button>
+  {% else %}
+    <button class="btn upgrade-btn" onclick="window.location.href='{% url 'upgrade_page' %}'">
+      🚀 Upgrade to Premium
+    </button>
+  {% endif %}
 
 {% if messages %}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -171,38 +186,38 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 <!-- Footer Section -->
-<footer style="background-color: #0d0d0d; color: white; padding: 40px 0;">
-  <div style="max-width: 1200px; margin: auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; text-align: center;">
+<!--<footer style="background-color: #0d0d0d; color: white; padding: 40px 0;">-->
+<!--  <div style="max-width: 1200px; margin: auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; text-align: center;">-->
 
-    <!-- Brand/Logo -->
-    <div style="flex: 1; min-width: 200px; margin-bottom: 20px;">
-      <h2 style="color: #38f9d7;">YourStartup</h2>
-      <p>Empowering the future with tech</p>
-    </div>
+<!--    &lt;!&ndash; Brand/Logo &ndash;&gt;-->
+<!--    <div style="flex: 1; min-width: 200px; margin-bottom: 20px;">-->
+<!--      <h2 style="color: #38f9d7;">YourStartup</h2>-->
+<!--      <p>Empowering the future with tech</p>-->
+<!--    </div>-->
 
-    <!-- Navigation -->
-    <div style="flex: 1; min-width: 200px; margin-bottom: 20px;">
-      <h3 style="color: #38f9d7;">Quick Links</h3>
-      <a href="#" style="color: white; text-decoration: none; display: block; margin: 5px 0;">Home</a>
-      <a href="#features" style="color: white; text-decoration: none; display: block; margin: 5px 0;">Features</a>
-      <a href="#about" style="color: white; text-decoration: none; display: block; margin: 5px 0;">About</a>
-      <a href="#pricing" style="color: white; text-decoration: none; display: block; margin: 5px 0;">Pricing</a>
-    </div>
+<!--    &lt;!&ndash; Navigation &ndash;&gt;-->
+<!--    <div style="flex: 1; min-width: 200px; margin-bottom: 20px;">-->
+<!--      <h3 style="color: #38f9d7;">Quick Links</h3>-->
+<!--      <a href="#" style="color: white; text-decoration: none; display: block; margin: 5px 0;">Home</a>-->
+<!--      <a href="#features" style="color: white; text-decoration: none; display: block; margin: 5px 0;">Features</a>-->
+<!--      <a href="#about" style="color: white; text-decoration: none; display: block; margin: 5px 0;">About</a>-->
+<!--      <a href="#pricing" style="color: white; text-decoration: none; display: block; margin: 5px 0;">Pricing</a>-->
+<!--    </div>-->
 
-    <!-- Social Icons -->
-    <div style="flex: 1; min-width: 200px; margin-bottom: 20px;">
-      <h3 style="color: #38f9d7;">Connect</h3>
-      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-facebook fa-lg"></i></a>
-      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-twitter fa-lg"></i></a>
-      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-instagram fa-lg"></i></a>
-      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-linkedin fa-lg"></i></a>
-    </div>
-  </div>
+<!--    &lt;!&ndash; Social Icons &ndash;&gt;-->
+<!--    <div style="flex: 1; min-width: 200px; margin-bottom: 20px;">-->
+<!--      <h3 style="color: #38f9d7;">Connect</h3>-->
+<!--      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-facebook fa-lg"></i></a>-->
+<!--      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-twitter fa-lg"></i></a>-->
+<!--      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-instagram fa-lg"></i></a>-->
+<!--      <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-linkedin fa-lg"></i></a>-->
+<!--    </div>-->
+<!--  </div>-->
 
-  <div style="text-align: center; padding-top: 20px; font-size: 14px; color: #bbb;">
-    &copy; 2025 YourStartup. All rights reserved.
-  </div>
-</footer>
+<!--  <div style="text-align: center; padding-top: 20px; font-size: 14px; color: #bbb;">-->
+<!--    &copy; 2025 YourStartup. All rights reserved.-->
+<!--  </div>-->
+<!--</footer>-->
 
 
 

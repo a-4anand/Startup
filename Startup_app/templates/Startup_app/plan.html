@@ -1,40 +1,237 @@
+
 <!DOCTYPE html>
+{% load static %}
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upgrade Plan</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
-    }
-    .btn {
-      background: #0d6efd;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 16px;
-      cursor: pointer;
-      border-radius: 8px;
-    }
-    .btn:hover {
-      background: #0b5ed7;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="{% static 'Startup_app/images/Screenshot_2025-08-19_at_1.22.05_PM-removebg-preview.png' %}">
+    <title>CUVY - Subcription</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Startup_app/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<!-- AOS Library CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-  <h1>Upgrade to Premium</h1>
-  <p>Unlock unlimited resume downloads for just <strong>₹50</strong>.</p>
-  <button id="rzp-button1">Pay Now</button>
+  <header>
+        <div class="logo">
+            <img src="{% static 'Startup_app/images/Screenshot_2025-08-19_at_1.22.05_PM-removebg-preview.png' %}" alt="Second Chapter Logo">
+
+        </div>
+
+        <nav>
+            <a href="/" style="text-decoration: none;">⬅ Back</a>
+
+            <div class="nav-divider"></div>
+
+            <a href="{% url 'index' %}">Home</a>
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'register' %}">Register</a>
+
+            <div class="nav-divider"></div>
+
+               <a href="{% url 'form' %}">Get ATS Score</a>
+
+            <a href="{% url 'upgrade_page' %}">Upgrade Plan</a>
+
+            <div class="nav-divider"></div>
+
+
+            <a href="#about">About Us</a>
+            <a href="{% url 'contact' %}">Contact Us</a>
+
+            <div class="nav-divider"></div>
+
+            <a href="{% url 'profile' %}">View Profile</a>
+
+            <a href="{% url 'logout' %}">Logout</a>
+        </nav>
+
+
+
+    </header>
+
+
+    <div class="video-background">
+  <video autoplay muted loop playsinline>
+    <source src="{% static 'Startup_app/images/2611250-uhd_3840_2160_30fps.mp4' %}" type="video/mp4">
+  </video>
+
+</div>
+
+
+ <!-- Hero -->
+<section class="upgrade-section">
+  <div class="pricing-card">
+    <h1><span class="highlight">CUVY</span> Premium</h1>
+    <p>Turn your rejected resumes into <strong>interview-ready opportunities</strong>.</p>
+
+    <div class="price">₹49 <span>Lifetime Access</span></div>
+
+    <button id="rzp-button1" class="glow-btn">⚡ Upgrade Now</button>
+  </div>
+</section>
+
+
+  <!-- How Cuvy Works -->
+  <section class="how-it-works">
+    <h2 data-aos="fade-up">How <span class="highlight">Cuvy</span> Works</h2>
+    <div class="steps">
+      <div class="step" data-aos="zoom-in" data-aos-delay="100">
+        <i class="fa-solid fa-magnifying-glass-chart"></i>
+        <h3>Step 1</h3>
+        <p>Upload your existing resume and <span class="highlight">calculate your ATS score</span> for free.</p>
+      </div>
+      <div class="step" data-aos="zoom-in" data-aos-delay="200">
+        <i class="fa-solid fa-lightbulb"></i>
+        <h3>Step 2</h3>
+        <p>Get <span class="highlight">AI-driven recommendations</span> on what’s missing or needs improvement.</p>
+      </div>
+      <div class="step" data-aos="zoom-in" data-aos-delay="300">
+        <i class="fa-solid fa-rocket"></i>
+        <h3>Step 3</h3>
+        <p>Upgrade once for just <strong>₹49</strong> and get a clean, organized resume ready for interviews.</p>
+      </div>
+    </div>
+  </section>
+
+
+
+  <div id="loading-overlay" style="display: none;">
+  <div class="loading-spinner"></div>
+  <p>Please wait... ZRedirecting to Payment Page.</p>
+</div>
+{% if messages %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+/* Frosted glass style */
+.swal2-popup.frost-glass {
+    background: rgb(56, 249, 215, 0.15); !important;
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+.swal2-title {
+    color: #fff !important;
+}
+.swal2-html-container {
+    color: #f0f0f0 !important;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    {% for message in messages %}
+        Swal.fire({
+            icon: "{% if 'success' in message.tags %}success{% elif 'error' in message.tags %}error{% else %}info{% endif %}",
+            title: "{{ message|escapejs }}",
+            confirmButtonColor: '#38f9d7',
+            customClass: {
+                popup: 'frost-glass'
+            },
+            background: 'transparent',
+            allowOutsideClick: false
+        });
+    {% endfor %}
+});
+</script>
+{% endif %}
+
+
+
+
+<!-- Font Awesome CDN for icons -->
+<!-- AOS Library JS -->
+
+
+<!--  menu toggle-->
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script>
+  document.getElementById('rzp-button1').onclick = function(e){
+      var options = {
+          "key": "{{ razorpay_key }}",
+          "amount": "4900", // paise
+          "currency": "INR",
+          "name": "CUVY Premium",
+          "description": "Lifetime Subscription",
+          "order_id": "{{ order_id }}",
+          "handler": function (response){
+              $.ajax({
+                  type: "POST",
+                  url: "{% url 'payment_success' %}",
+                  data: JSON.stringify(response),
+                  contentType: "application/json",
+                  success: function(data) {
+                      if(data.status === 'success' && data.redirect_url) {
+                          window.location.href = data.redirect_url;
+                      } else {
+                          alert("Payment verified but redirection failed. Contact support.");
+                      }
+                  },
+                  error: function() {
+                      alert("Payment verification failed.");
+                  }
+              });
+          },
+          "prefill": {
+              "name": "{{ request.user.username }}",
+              "email": "{{ request.user.email }}",
+          },
+          "theme": {"color": "#38f9d7"}
+      };
+      var rzp1 = new Razorpay(options);
+      rzp1.open();
+      e.preventDefault();
+  }
+  </script>
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script src="{% static 'Startup_app/js/script.js' %}"></script>
+<!-- put your script include at the END of body or use defer -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const nav = document.querySelector("nav");
+    const menuToggle = document.createElement("div");
+
+    menuToggle.innerHTML = `<span></span><span></span><span></span>`;
+    menuToggle.classList.add("menu-toggle");
+
+    nav.parentNode.insertBefore(menuToggle, nav);
+
+    menuToggle.addEventListener("click", function () {
+        nav.classList.toggle("active");
+        menuToggle.classList.toggle("open");
+        document.body.classList.toggle("nav-open");
+    });
+});
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <script>
 document.getElementById('rzp-button1').onclick = function(e){
     var options = {
         "key": "{{ razorpay_key }}",
-        "amount": "5000",
+        "amount": "4900",
         "currency": "INR",
         "name": "Your App Name",
         "description": "Resume Optimization Service",
@@ -81,5 +278,8 @@ document.getElementById('rzp-button1').onclick = function(e){
     e.preventDefault();
 }
 </script>
-</body>
 </html>
+
+
+
+
