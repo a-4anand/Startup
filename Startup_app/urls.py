@@ -11,6 +11,7 @@ urlpatterns = [
     # NEW URL for generating the resume after payment
     path('payment-success/', views.payment_success, name='payment_success'),
     path('download-resume/', views.download_resume_pdf, name='download_resume_pdf'),
+path('download-resume/word/', views.download_resume_word, name='download_resume_word'),
     path('generate_final_resume/', views.generate_final_resume, name='generate_final_resume'),
 path('generate-final-resume/', views.generate_final_resume),
     path('login/', views.user_login, name='login'),

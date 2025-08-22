@@ -26,6 +26,9 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.db.models import F
+from django.urls import reverse
+from docx import Document
+from docx.shared import Inches
 
 load_dotenv()
 genai.configure(api_key=settings.GEMINI_API_KEY)
@@ -166,8 +169,11 @@ def extract_text_from_pdf(uploaded_file):
 def analyze_resume(request):
     if request.method == "POST":
         resume_file = request.FILES.get("resume")
-        if not resume_file:
-            messages.error(request, "Please upload a resume file.")
+        job_description = request.POST.get("job_description")
+        experience_level = request.POST.get("experience_level")
+        if not resume_file or not job_description or not experience_level:
+            messages.error(request,
+                           "Please fill out all fields: upload resume, select experience, and paste job description.")
             return redirect("form_view")
 
         resume_text = extract_text_from_pdf(resume_file)
@@ -177,14 +183,32 @@ def analyze_resume(request):
 
         # --- Store the original resume text in the session for later use ---
         request.session['original_resume_text'] = resume_text
+        request.session['job_description'] = job_description
+        request.session['experience_level'] = experience_level
 
         # --- Get ONLY the Initial ATS Score (The Free Part) ---
         initial_scoring_prompt = f"""
-        You are an ATS (Applicant Tracking System) evaluation expert.
-        Instructions:
-        1. On the first line, output ONLY the ATS score (integer between 0–100, no extra text).
-        2. Then provide exactly 4 bullet points: 2 strengths and 2 weaknesses.
-        Resume content:\n{resume_text}
+        You are a highly advanced ATS (Applicant Tracking System) simulator.
+        Your task is to analyze a candidate's resume against a specific job description and provide a score.
+
+        **Job Description:**
+        ---
+        {job_description}
+        ---
+
+        **Candidate's Resume:**
+        ---
+        {resume_text}
+        ---
+
+        **Instructions:**
+        1.  **Analyze Fit:** Meticulously compare the resume against the job description. Evaluate keyword alignment, skills match, experience relevance, and qualifications.
+        2.  **Score Output:** On the first line, provide **ONLY the ATS match score** (an integer from 0-100).
+        3.  **Feedback Output:** On subsequent lines, provide exactly four bullet points of concise feedback:
+            * **Strength 1:** The single biggest strength of the resume for this specific job.
+            * **Strength 2:** Another key positive alignment.
+            * **Weakness 1:** The most critical gap or missing keyword.
+            * **Weakness 2:** The second most important area for improvement to better match the job description.
         """
         try:
             initial_response = model.generate_content(initial_scoring_prompt)
@@ -211,8 +235,7 @@ def analyze_resume(request):
     return redirect("form_view")
 @login_required
 def generate_final_resume(request):
-    # --- PAYMENT CHECK ---
-    # This is the new paywall. This view is only accessible after payment.
+
     try:
         subscription = Subscription.objects.get(user=request.user)
         if not subscription.is_paid:
@@ -232,54 +255,79 @@ def generate_final_resume(request):
         messages.error(request, "No subscription found. Please complete the payment process.")
         return redirect("upgrade_page")
 
-    # --- Retrieve the original resume text from the session ---
     resume_text = request.session.get('original_resume_text')
-    if not resume_text:
-        messages.error(request, "Your session has expired. Please analyze your resume again.")
-        return redirect("form")
+    job_description = request.session.get('job_description')
+    experience_level = request.session.get('experience_level')
+    if not all([resume_text, job_description, experience_level]):
+        messages.error(request,
+                       "Your session has expired or is missing key information. Please analyze your resume again.")
+        return redirect("form_view")
 
     # --- Step 1: Rewrite the Resume (Same prompt as before) ---
     rewrite_prompt = f"""
-                You are an expert resume writer and ATS optimization specialist.
+        You are an elite, world-class resume writer and career coach, specializing in creating documents that defeat even the most advanced Applicant Tracking Systems (ATS).
 
-    Task:
-    Rewrite the given resume into a **FINAL, job-ready, ATS-optimized resume** targeted to maximize ATS score for a generic tech/business role.
-    - Actively improve keyword density by adding relevant industry terms where appropriate.
-    - Replace generic verbs with strong action verbs.
-    - Emphasize measurable results and achievements.
-    - Remove fluff and filler phrases.
-    - Keep resume under 1 page (~500 words).
+        **Objective:** Transform the provided raw resume into a masterpiece of professional communication, hyper-tailored to the specific job description and the candidate's experience level. The final output must be a job-winning, ATS-optimized resume.
+
+        **INPUTS:**
+        1.  **Candidate's Experience Level:** {experience_level}
+        2.  **Target Job Description:**
+            ---
+            {job_description}
+            ---
+        3.  **Original Resume Content:**
+            ---
+            {resume_text}
+            ---
+
+        **EXECUTION PLAN:**
+        1.  **Deconstruct the Job Description:** First, identify the top 5-10 most critical keywords, skills (hard and soft), and qualifications mentioned in the job description. Note the company's tone and values if discernible.
+        2.  **Strategic Keyword Integration:** Infuse the identified keywords naturally throughout the new resume, especially in the Professional Summary and Experience sections. The goal is maximum keyword density without sounding robotic.
+        3.  **Quantify Everything:** Aggressively transform responsibilities into quantifiable achievements. Use metrics, percentages, and dollar amounts to demonstrate impact. If the original resume lacks numbers, frame the achievements to imply scale and success (e.g., "Managed key client accounts" becomes "Spearheaded relationships with 15+ key enterprise accounts, driving client retention").
+        4.  **Action Verb Dominance:** Every bullet point MUST start with a powerful, industry-relevant action verb (e.g., Architected, Optimized, Spearheaded, Executed, Launched, Reduced, Increased).
+        5.  **Tailor the Tone:** Adjust the language to match the candidate's experience level.
+            -   **Fresher:** Emphasize projects, skills, and potential.
+            -   **Experienced:** Emphasize impact, leadership, and strategic contributions.
+        6.  **Structure for Success:** Adhere strictly to the provided formatting rules for maximum ATS compatibility and human readability.
+
+        **STRICT FORMATTING RULES:**
+        -   The final output must be **ONLY the rewritten resume text**. No explanations, no commentary, no preamble.
+        -   Use "===== BLUE LINE =====" as a separator between major sections.
+        -   Section Order: PROFESSIONAL SUMMARY, SKILLS, EXPERIENCE, PROJECTS, EDUCATION, ACHIEVEMENTS. Omit any section if no content exists.
+        -   Skills Section: Group skills into logical categories like 'Technical Skills', 'Certifications', 'Languages'.
+        -   Conciseness: Keep the final resume under 600 words.
+
+        Now, execute the plan and generate the final resume.
+        """
+    rewrite_response = model.generate_content(rewrite_prompt)
+    generated_resume = rewrite_response.text.strip()
+    request.session["generated_resume"] = generated_resume
+
+    # --- Step 2: Recalculate ATS score against the SAME job description ---
+    new_scoring_prompt = f"""
+        You are a highly advanced ATS (Applicant Tracking System) simulator.
+        Your task is to analyze the following **optimized resume** against the **original job description** and provide a final score and feedback.
+
+        **Job Description:**
+        ---
+        {job_description}
+        ---
+
+        **Optimized Resume:**
+        ---
+        {generated_resume}
+        ---
+
+        **Instructions:**
+        1.  **Score Output:** On the first line, provide **ONLY the new ATS match score** (0-100).
+        2.  **Feedback Output:** On subsequent lines, provide exactly four bullet points:
+            * **Improvement 1:** The most significant improvement made.
+            * **Improvement 2:** Another key area where the resume is now stronger.
+            * **Final Polish 1:** One final suggestion for a minor tweak.
+            * **Final Polish 2:** One last piece of advice before submitting.
+        """
 
 
-                Your goal: Produce a FINAL, **professionally written, ATS-optimized resume** that looks like it was written by a top career coach.
-                - The output must be clean, single-column, plain text.
-                - Keep the entire resume within 1 page (max ~500 words).
-                - Omit any section that does not have relevant details — completely skip the heading if no meaningful content exists.
-                - Do NOT use placeholders like [Institution Name] or "N/A".
-                - Optimize for ANY industry (universal template).
-                - Ensure proper grammar, consistency, and alignment.
-
-                Formatting rules:
-                1. FULL NAME — in bold (will be styled in blue in PDF).
-                2. Contact line: email | phone | LinkedIn | location (skip missing items).
-                3. Between sections, insert exactly this line: ===== BLUE LINE =====
-                4. Keep layout ATS-compliant — no graphics, tables, or special symbols.
-                5. Use strong action verbs and measurable results in bullet points.
-                6. Keep descriptions concise but impactful.
-                7. Only output the final resume — no suggestions, no commentary.
-
-                Preferred section order (only include if not empty):
-                - FULL NAME & Contact
-                - PROFESSIONAL SUMMARY (3–4 lines summarizing expertise and achievements)
-                - SKILLS (grouped into categories like Technical Skills, Tools, Soft Skills)
-                - EXPERIENCE (chronological, with role, company, dates, and 2–4 bullet points)
-                - EDUCATION (degree, institution, dates, and optional coursework)
-                - PROJECTS (title, short description, and 2 bullet points)
-                - ACHIEVEMENTS (bullet points of measurable accomplishments)
-
-                Resume to rewrite:
-                {resume_text}
-                """
     rewrite_response = model.generate_content(rewrite_prompt)
     generated_resume = rewrite_response.text.strip()
     request.session["generated_resume"] = generated_resume # Save for download view
@@ -287,20 +335,17 @@ def generate_final_resume(request):
     # --- Step 2: Recalculate ATS score for the new resume ---
     new_scoring_prompt = f"""
             You are an ATS (Applicant Tracking System) evaluation expert.
-
             Instructions:
             1. On the first line, output ONLY the ATS score (integer between 0–100, no extra text).
             2. Then provide exactly 4 bullet points:
                - 2 strongest aspects of the resume.
                - 2 most important weaknesses or gaps to improve.
             3. Keep the feedback concise and ATS-focused.
-
             Resume content:
             {generated_resume}
-            """
+        """
     new_scoring_response = model.generate_content(new_scoring_prompt)
     raw_new_output = new_scoring_response.text.strip()
-
     subscription.download_count = F('download_count') + 1
     subscription.save()
 
@@ -382,6 +427,56 @@ def download_resume_pdf(request):
     response["Content-Disposition"] = 'attachment; filename="ATS_Optimized_Resume.pdf"'
     return response
 
+
+@login_required
+def download_resume_word(request):
+    # 1. Get the resume content from the session
+    resume_content = request.session.get("generated_resume")
+    if not resume_content:
+        messages.error(request, "Could not find the generated resume in your session. Please generate it again.")
+        return redirect("form_view")
+
+    # 2. Create a new Word document
+    document = Document()
+
+    # Optional: Set margins for a professional look
+    for section in document.sections:
+        section.top_margin = Inches(0.5)
+        section.bottom_margin = Inches(0.5)
+        section.left_margin = Inches(0.75)
+        section.right_margin = Inches(0.75)
+
+    # 3. Parse the resume text and add it to the document
+    for line in resume_content.split("\n"):
+        clean_line = re.sub(r"[*_]{1,2}(.*?)\1?[*_]{1,2}", r"\1", line).strip()
+
+        if "===== BLUE LINE =====" in clean_line:
+            # Add a simple paragraph for spacing, as a visual line is complex in .docx
+            document.add_paragraph()
+        elif clean_line.isupper() and len(clean_line.split()) < 5 and clean_line:
+            # Add section headings like "EXPERIENCE"
+            document.add_heading(clean_line, level=2)
+        elif clean_line.startswith(("-", "*")):
+            # Add bullet points
+            document.add_paragraph(clean_line.lstrip("-* ").strip(), style='List Bullet')
+        elif clean_line:
+            # Add regular text
+            document.add_paragraph(clean_line)
+
+    # 4. Save the document to an in-memory buffer
+    doc_buffer = BytesIO()
+    document.save(doc_buffer)
+    doc_buffer.seek(0)
+
+    # 5. Create the HTTP response to send the file
+    response = HttpResponse(
+        doc_buffer.read(),
+        content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
+    response["Content-Disposition"] = 'attachment; filename="ATS_Optimized_Resume.docx"'
+    return response
+
+
 from django.contrib import messages
 from .models import Contact
 
@@ -453,12 +548,15 @@ def payment_success(request):
             return JsonResponse({"status": "failed", "message": "Signature verification failed."})
 
         try:
+            if not request.user.is_authenticated:
+                return JsonResponse({"status": "failed", "message": "User not authenticated."})
             subscription = Subscription.objects.get(user=request.user, intended_razorpay_order_id=order_id)
             subscription.razorpay_order_id = order_id
             subscription.razorpay_payment_id = payment_id
             subscription.razorpay_signature = signature
             subscription.plan = "Purchase"
             subscription.is_paid = True
+            subscription.download_count = 0
             subscription.save()
 
             # *** KEY CHANGE: Return a URL for redirection ***
@@ -468,10 +566,6 @@ def payment_success(request):
             })
         except Subscription.DoesNotExist:
             return JsonResponse({"status": "failed", "message": "Subscription not found."})
-
-
-
-
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)

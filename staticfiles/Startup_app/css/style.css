@@ -510,6 +510,7 @@ body.nav-open {
 
 
 
+
 /*markdown style*/
 /* AI Feedback Section */
 .ai-feedback-section {
@@ -955,4 +956,77 @@ body.nav-open {
 @keyframes fadeIn {
   from {opacity: 0; transform: translateY(20px);}
   to {opacity: 1; transform: translateY(0);}
+}
+
+
+/*css for job description*/
+
+  .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #f0f0f0;
+  }
+  .form-group input[type="file"],
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background-color: #2a2a2a;
+    color: #fff;
+    font-size: 16px;
+  }
+
+
+  /* --- Loading Overlay Styles --- */
+#loading-overlay {
+  position: fixed; /* Cover the entire screen */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(11, 15, 23, 0.8); /* Dark semi-transparent background */
+  backdrop-filter: blur(8px); /* Frosted glass effect */
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex; /* Use flexbox for centering */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+#loading-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#loading-overlay p {
+  color: #fff;
+  margin-top: 20px;
+  font-size: 1.2em;
+  font-weight: 500;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 5px solid rgba(255, 255, 255, 0.2); /* Faint circle */
+  border-top-color: #38f9d7; /* Your neon-cyan accent color */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
