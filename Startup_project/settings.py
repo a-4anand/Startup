@@ -30,7 +30,7 @@ LOGOUT_REDIRECT_URL = '/'
 SECRET_KEY = 'django-insecure-y5^i$))+t8)t%xgzlruk!npp30xr=-z@6uo6!tfawunrp=d8gc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'rezoome.azurewebsites.net',
