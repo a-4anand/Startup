@@ -332,18 +332,7 @@ def generate_final_resume(request):
     generated_resume = rewrite_response.text.strip()
     request.session["generated_resume"] = generated_resume # Save for download view
 
-    # --- Step 2: Recalculate ATS score for the new resume ---
-    new_scoring_prompt = f"""
-            You are an ATS (Applicant Tracking System) evaluation expert.
-            Instructions:
-            1. On the first line, output ONLY the ATS score (integer between 0–100, no extra text).
-            2. Then provide exactly 4 bullet points:
-               - 2 strongest aspects of the resume.
-               - 2 most important weaknesses or gaps to improve.
-            3. Keep the feedback concise and ATS-focused.
-            Resume content:
-            {generated_resume}
-        """
+
     new_scoring_response = model.generate_content(new_scoring_prompt)
     raw_new_output = new_scoring_response.text.strip()
     subscription.download_count = F('download_count') + 1
@@ -510,28 +499,44 @@ def contact_view(request):
 import razorpay
 from django.views.decorators.csrf import csrf_exempt
 
+# In your views.py file
+
 @login_required(login_url='/login/')
 def upgrade_page(request):
-    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+    # Get or create a subscription object for the logged-in user
+    subscription, created = Subscription.objects.get_or_create(user=request.user)
 
-    order = client.order.create({
-        "amount": 5000,  # 50 INR in paise
-        "currency": "INR",
-        "payment_capture": 1
-    })
+    # --- KEY CHANGE: Check if the user is already subscribed ---
+    if subscription.is_paid:
+        messages.info(request, "You already have an active premium subscription! 🚀")
+        return redirect('profile') # Redirect them away from the payment page
 
-    # Store intended plan & order_id
-    subscription, _ = Subscription.objects.get_or_create(user=request.user)
-    subscription.intended_plan = "Purchase"
-    subscription.intended_razorpay_order_id = order["id"]
-    subscription.save()
+    # --- If not subscribed, proceed with creating a payment order ---
+    try:
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
-    return render(request, "Startup_app/plan.html", {
-        "order_id": order["id"],
-        "razorpay_key": settings.RAZORPAY_KEY_ID
-    })
+        # Note: I've corrected the amount to 4900 paise (₹49) to match your template
+        order = client.order.create({
+            "amount": 4900,
+            "currency": "INR",
+            "payment_capture": 1
+        })
 
+        # Store the new intended order ID
+        subscription.intended_razorpay_order_id = order["id"]
+        subscription.save()
 
+        context = {
+            "order_id": order["id"],
+            "razorpay_key": settings.RAZORPAY_KEY_ID,
+            "subscription": subscription # Pass subscription status to the template
+        }
+        return render(request, "Startup_app/plan.html", context)
+
+    except Exception as e:
+        print(f"Error creating Razorpay order: {e}")
+        messages.error(request, "Could not connect to the payment gateway. Please try again later.")
+        return redirect('index')
 @csrf_exempt
 
 def payment_success(request):
