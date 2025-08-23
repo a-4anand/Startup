@@ -264,41 +264,62 @@ def generate_final_resume(request):
         return redirect("form_view")
 
     # --- Step 1: Rewrite the Resume (Same prompt as before) ---
+
+    # In generate_final_resume, replace your entire rewrite_prompt with this:
+
     rewrite_prompt = f"""
-        You are an elite, world-class resume writer and career coach, specializing in creating documents that defeat even the most advanced Applicant Tracking Systems (ATS).
+    You are "CHIMERA," a Master Recruitment Strategist AI. Your sole purpose is to synthesize human career coaching expertise with machine-optimized document structure.
 
-        **Objective:** Transform the provided raw resume into a masterpiece of professional communication, hyper-tailored to the specific job description and the candidate's experience level. The final output must be a job-winning, ATS-optimized resume.
+    **PRIME DIRECTIVE:**
+    Transform the raw, user-submitted resume content into an interview-generating masterpiece. The final document must be hyper-optimized to defeat 99% of Applicant Tracking Systems (ATS) AND captivate a human recruiter in under 6 seconds.
 
-        **INPUTS:**
-        1.  **Candidate's Experience Level:** {experience_level}
-        2.  **Target Job Description:**
-            ---
-            {job_description}
-            ---
-        3.  **Original Resume Content:**
-            ---
-            {resume_text}
-            ---
+    **CORE PHILOSOPHY: IMPACT over Activity.**
+    Do not merely list job duties. Your function is to translate every task into a quantifiable, value-driven achievement.
 
-        **EXECUTION PLAN:**
-        1.  **Deconstruct the Job Description:** First, identify the top 5-10 most critical keywords, skills (hard and soft), and qualifications mentioned in the job description. Note the company's tone and values if discernible.
-        2.  **Strategic Keyword Integration:** Infuse the identified keywords naturally throughout the new resume, especially in the Professional Summary and Experience sections. The goal is maximum keyword density without sounding robotic.
-        3.  **Quantify Everything:** Aggressively transform responsibilities into quantifiable achievements. Use metrics, percentages, and dollar amounts to demonstrate impact. If the original resume lacks numbers, frame the achievements to imply scale and success (e.g., "Managed key client accounts" becomes "Spearheaded relationships with 15+ key enterprise accounts, driving client retention").
-        4.  **Action Verb Dominance:** Every bullet point MUST start with a powerful, industry-relevant action verb (e.g., Architected, Optimized, Spearheaded, Executed, Launched, Reduced, Increased).
-        5.  **Tailor the Tone:** Adjust the language to match the candidate's experience level.
-            -   **Fresher:** Emphasize projects, skills, and potential.
-            -   **Experienced:** Emphasize impact, leadership, and strategic contributions.
-        6.  **Structure for Success:** Adhere strictly to the provided formatting rules for maximum ATS compatibility and human readability.
+    **STRATEGIC FRAMEWORK:**
+    You will architect the resume based on a three-layer optimization model:
+    1.  **Layer 1: The ATS Gauntlet (Machine Readability):** Standard headers, optimal keyword density, clean single-column format.
+    2.  **Layer 2: The 6-Second Recruiter Scan (Human Skimmability):** Powerful "Value Proposition Statement," bold markdown for all quantifiable metrics (`**+25%**`, `**$500K**`), and powerful action verbs.
+    3.  **Layer 3: The Deep Dive (Compelling Narrative):** Structure each experience bullet point as a self-contained impact story (Action leading to a measurable Result).
 
-        **STRICT FORMATTING RULES:**
-        -   The final output must be **ONLY the rewritten resume text**. No explanations, no commentary, no preamble.
-        -   Use "===== BLUE LINE =====" as a separator between major sections.
-        -   Section Order: PROFESSIONAL SUMMARY, SKILLS, EXPERIENCE, PROJECTS, EDUCATION, ACHIEVEMENTS. Omit any section if no content exists.
-        -   Skills Section: Group skills into logical categories like 'Technical Skills', 'Certifications', 'Languages'.
-        -   Conciseness: Keep the final resume under 600 words.
+    ---
+    **SECTION-SPECIFIC MANDATES:**
 
-        Now, execute the plan and generate the final resume.
-        """
+    * **<<<<< CRITICAL NEW INSTRUCTION STARTS HERE >>>>>**
+    * **CANDIDATE HEADER:**
+        * At the absolute top of the resume, you MUST include the candidate's core contact information.
+        * Analyze the `ORIGINAL RESUME CONTENT` to find the candidate's **Full Name**, **Phone Number**, **Email Address**, and **LinkedIn URL** (if available).
+        * Format this information cleanly and professionally at the beginning of the document. The name should be the most prominent element.
+    * **<<<<< CRITICAL NEW INSTRUCTION ENDS HERE >>>>>**
+
+    * **VALUE PROPOSITION STATEMENT (Replaces "Professional Summary"):**
+        * Start with a powerful, role-centric title (e.g., "Results-Driven Data Analyst").
+        * Compose a 3-4 line keyword-rich pitch answering: "What is your specialty, top achievement, and value to this role?"
+
+    * **HYBRID SKILLS MATRIX (Replaces "Skills"):**
+        * Group skills into logical, ATS-friendly categories: `Technical Proficiencies:`, `Software & Tools:`, `Languages:`, `Certifications:`.
+
+    * **PROFESSIONAL EXPERIENCE (The Impact Zone):**
+        * Create 3-5 impact-driven bullet points per role, starting with an action verb and containing a bolded metric.
+        * If experience is academic or training (like CA-IT Training [cite: 12]), frame bullet points to highlight the **skills demonstrated** and the **outcomes achieved** (e.g., "achieving a score of 231/300" [cite: 13]), rather than presenting it as formal employment.
+
+    ---
+    **NON-NEGOTIABLE FORMATTING PROTOCOLS:**
+
+    * **Output Format:** ONLY the rewritten resume text.
+    * **Visual Separator:** Use `===== HORIZONTAL_RULE =====`.
+    * **Section Order:** CANDIDATE HEADER, VALUE PROPOSITION STATEMENT, HYBRID SKILLS MATRIX, PROFESSIONAL EXPERIENCE, PROJECTS, EDUCATION.
+    * **Forbidden Elements:** NO personal pronouns (I, my, me). NO clichés. **DO NOT** include the literal words 'Challenge', 'Action', or 'Result' in the text.
+
+    ---
+    **INPUTS:**
+    1.  **CANDIDATE PROFILE:** {experience_level}
+    2.  **TARGET JOB DESCRIPTION:** --- {job_description} ---
+    3.  **ORIGINAL RESUME CONTENT:** --- {resume_text} ---
+
+    Now, execute the Prime Directive.
+    """
+
     rewrite_response = model.generate_content(rewrite_prompt)
     generated_resume = rewrite_response.text.strip()
     request.session["generated_resume"] = generated_resume
@@ -328,11 +349,6 @@ def generate_final_resume(request):
         """
 
 
-    rewrite_response = model.generate_content(rewrite_prompt)
-    generated_resume = rewrite_response.text.strip()
-    request.session["generated_resume"] = generated_resume # Save for download view
-
-
     new_scoring_response = model.generate_content(new_scoring_prompt)
     raw_new_output = new_scoring_response.text.strip()
     subscription.download_count = F('download_count') + 1
@@ -354,7 +370,7 @@ def generate_final_resume(request):
 
     for line in generated_resume.split("\n"):
         clean_line = re.sub(r"[*_]{1,2}(.*?)\1?[*_]{1,2}", r"\1", line).strip()
-        if "===== BLUE LINE =====" in clean_line:
+        if "===== HORIZONTAL_RULE =====" in clean_line:
 
             story.append(Table([[""]], colWidths=[450], style=TableStyle([('LINEBELOW', (0, 0), (-1, -1), 1, colors.HexColor("#0D47A1"))])))
             story.append(Spacer(1, 8))
@@ -378,9 +394,6 @@ def generate_final_resume(request):
         "generated_resume_pdf": generated_resume_pdf
     })
 @login_required
-# In your app's views.py file
-
-@login_required
 def download_resume_pdf(request):
     # The generation was the limited action. Download is now free for generated content.
     resume_content = request.session.get("generated_resume")
@@ -396,7 +409,7 @@ def download_resume_pdf(request):
     story = []
     for line in resume_content.split("\n"):
         clean_line = re.sub(r"[*_]{1,2}(.*?)\1?[*_]{1,2}", r"\1", line).strip()
-        if "===== BLUE LINE =====" in clean_line:
+        if "===== HORIZONTAL_RULE =====" in clean_line:
             story.append(Spacer(1, 8))
             story.append(Table([[""]], colWidths=[450],
                                style=TableStyle([('LINEBELOW', (0, 0), (-1, -1), 1, colors.HexColor("#0D47A1"))])))
@@ -415,8 +428,6 @@ def download_resume_pdf(request):
     response = HttpResponse(pdf_data, content_type="application/pdf")
     response["Content-Disposition"] = 'attachment; filename="ATS_Optimized_Resume.pdf"'
     return response
-
-
 @login_required
 def download_resume_word(request):
     # 1. Get the resume content from the session

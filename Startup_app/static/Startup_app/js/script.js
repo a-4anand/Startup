@@ -35,16 +35,18 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => suggestionsBox.classList.add("show"), 500);
     }
 
-    // ✅ Loader on form submit
-    const forms = document.querySelectorAll("form");
-    const loader = document.getElementById("loading-overlay");
-    if (loader) {
-        forms.forEach(form => {
-            form.addEventListener("submit", () => {
-                loader.style.display = "flex";
-            });
+// Loader on form submit
+const forms = document.querySelectorAll("form");
+const loader = document.getElementById("loading-overlay");
+
+if (loader && forms.length > 0) {
+    forms.forEach(form => {
+        form.addEventListener("submit", () => {
+            // Add the 'visible' class to trigger the CSS transition
+            loader.classList.add("visible");
         });
-    }
+    });
+}
 
 
 
