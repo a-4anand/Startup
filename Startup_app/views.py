@@ -29,11 +29,19 @@ from django.db.models import F
 from django.urls import reverse
 from docx import Document
 from docx.shared import Inches
+from reportlab.lib.styles import ParagraphStyle
 
 load_dotenv()
 genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-1.5-pro', generation_config={"temperature": 0.3})
+flash_model = genai.GenerativeModel('gemini-1.5-flash', generation_config={"temperature": 0.3})
+import re
 
+# --- ADD THIS HELPER FUNCTION at the top of your views.py, after the imports ---
+def strip_html_tags(text):
+    """A simple function to remove all HTML/XML tags from a string."""
+    clean = re.compile('<.*?>')
+    return re.sub(clean, '', text)
 
 
 def send_otp_email(email, otp):
@@ -167,72 +175,102 @@ def extract_text_from_pdf(uploaded_file):
         print(f"Error extracting text: {e}") # For debugging
         return None
 def analyze_resume(request):
-    if request.method == "POST":
-        resume_file = request.FILES.get("resume")
-        job_description = request.POST.get("job_description")
-        experience_level = request.POST.get("experience_level")
-        if not resume_file or not job_description or not experience_level:
-            messages.error(request,
-                           "Please fill out all fields: upload resume, select experience, and paste job description.")
-            return redirect("form_view")
+        if request.method == "POST":
+            resume_file = request.FILES.get("resume")
+            job_description = request.POST.get("job_description")
+            experience_level = request.POST.get("experience_level")
+            if not resume_file or not job_description or not experience_level:
+                messages.error(request,
+                               "Please fill out all fields: upload resume, select experience, and paste job description.")
+                return redirect("form_view")
 
-        resume_text = extract_text_from_pdf(resume_file)
-        if not resume_text:
-            messages.error(request, "Failed to read text from the uploaded PDF. Please try another file.")
-            return redirect("form_view")
+            resume_text = extract_text_from_pdf(resume_file)
+            if not resume_text:
+                messages.error(request, "Failed to read text from the uploaded PDF. Please try another file.")
+                return redirect("form_view")
 
-        # --- Store the original resume text in the session for later use ---
-        request.session['original_resume_text'] = resume_text
-        request.session['job_description'] = job_description
-        request.session['experience_level'] = experience_level
+            # --- Store the original resume text in the session for later use ---
+            request.session['original_resume_text'] = resume_text
+            request.session['job_description'] = job_description
+            request.session['experience_level'] = experience_level
 
-        # --- Get ONLY the Initial ATS Score (The Free Part) ---
-        initial_scoring_prompt = f"""
-        You are a highly advanced ATS (Applicant Tracking System) simulator.
-        Your task is to analyze a candidate's resume against a specific job description and provide a score.
+            # --- Get ONLY the Initial ATS Score (The Free Part) ---
+            initial_scoring_prompt = f"""
+You are an elite, enterprise-grade ATS (Applicant Tracking System) Scoring Engine. Your function is to perform a rigorous, quantitative analysis of a candidate's resume against a target job description. You must operate with extreme precision and adhere strictly to the multi-step protocol outlined below.
 
-        **Job Description:**
-        ---
-        {job_description}
-        ---
+---
+**SCORING RUBRIC (100 points total):**
+You will calculate the final score based on the following weighted categories:
 
-        **Candidate's Resume:**
-        ---
-        {resume_text}
-        ---
+1.  **Keyword & Skill Alignment (40 points):** Direct match of essential skills, technologies, and keywords mentioned in the job description.
+2.  **Relevant Experience (30 points):** Alignment of job titles, years of experience, and industry context with the role's requirements.
+3.  **Quantifiable Achievements (20 points):** Presence and quality of metrics, numbers, and data-driven results in the experience section.
+4.  **Education & Certifications (10 points):** Match of required degrees, certifications, and educational background.
 
-        **Instructions:**
-        1.  **Analyze Fit:** Meticulously compare the resume against the job description. Evaluate keyword alignment, skills match, experience relevance, and qualifications.
-        2.  **Score Output:** On the first line, provide **ONLY the ATS match score** (an integer from 0-100).
-        3.  **Feedback Output:** On subsequent lines, provide exactly four bullet points of concise feedback:
-            * **Strength 1:** The single biggest strength of the resume for this specific job.
-            * **Strength 2:** Another key positive alignment.
-            * **Weakness 1:** The most critical gap or missing keyword.
-            * **Weakness 2:** The second most important area for improvement to better match the job description.
-        """
-        try:
-            initial_response = model.generate_content(initial_scoring_prompt)
-            raw_initial_output = initial_response.text.strip()
+---
+**MULTI-STEP ANALYSIS PROTOCOL:**
+Before providing any output, you must perform the following analysis internally:
 
-            # More robust parsing for the score
-            lines = raw_initial_output.splitlines()
-            initial_first_line = lines[0].strip() if lines else ""
-            initial_match = re.search(r'\d+', initial_first_line)  # Find first number
-            initial_ats_score = initial_match.group(0) if initial_match else "N/A"
-            initial_comments = "\n".join(lines[1:]).strip()
+* **Step 1: Deconstruction:** Identify the top 10 most critical hard skills, tools, and qualifications from the **Job Description**.
+* **Step 2: Mapping:** Scan the **Candidate's Resume** and list which of the critical factors from Step 1 are present.
+* **Step 3: Scoring:** Based on the mapping in Step 2 and a holistic review, assign a score for each of the 4 categories in the **Scoring Rubric**.
+* **Step 4: Synthesis:** Sum the scores from Step 3 to calculate the final, total ATS score.
+* **Step 5: Feedback Generation:** Use the results of your analysis to generate feedback. The two strengths MUST come from the highest-scoring categories. The two weaknesses MUST come from the lowest-scoring categories. The feedback must be specific and actionable.
 
-        except Exception as e:
-            messages.error(request, f"An error occurred during analysis: {e}")
-            return redirect('form_view')
+---
+**INPUTS:**
 
-        # --- Render the initial results page ---
-        return render(request, "Startup_app/form.html", {
-            "ats_score": initial_ats_score,
-            "comments": initial_comments,
-        })
+**1. Job Description:** 
+{job_description}
+**2. Candidate's Resume:**
 
-    # If GET request, redirect to the form
-    return redirect("form_view")
+{resume_text}
+
+
+---
+**STRICT OUTPUT FORMAT:**
+Your entire output must be ONLY the following. Do not add any other text, explanations, or conversational filler.
+
+* **Line 1:** The final ATS score, formatted exactly as: `SCORE: [Total Score]`
+* **Line 2:** The first strength bullet point, starting with `* Strength:`.
+* **Line 3:** The second strength bullet point, starting with `* Strength:`.
+* **Line 4:** The first weakness bullet point, starting with `* Weakness:`.
+* **Line 5:** The second weakness bullet point, starting with `* Weakness:`.
+
+"""
+            try:
+                initial_response = flash_model.generate_content(initial_scoring_prompt)
+                raw_initial_output = initial_response.text.strip()
+
+                # More robust parsing for the score
+                lines = raw_initial_output.splitlines()
+                initial_first_line = lines[0].strip() if lines else ""
+
+                # This regex now looks for any number in the first line
+                initial_match = re.search(r'\d+', initial_first_line)
+
+                initial_ats_score = initial_match.group(0) if initial_match else "N/A"
+                initial_comments = "\n".join(lines[1:]).strip()
+
+            except Exception as e:
+                messages.error(request, f"An error occurred during analysis: {e}")
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                print(f"CRITICAL ERROR IN GEMINI API CALL: {e}")
+                print(f"ERROR TYPE: {type(e)}")
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                return redirect('form_view')
+
+            # --- Render the initial results page ---
+            return render(request, "Startup_app/form.html", {
+                "ats_score": initial_ats_score,
+                "comments": initial_comments,
+            })
+
+        # If GET request, redirect to the form
+        return redirect("form_view")
+
+
+# --- THIS IS THE FINAL, CORRECTED VERSION. PLEASE REPLACE YOUR ENTIRE FUNCTION WITH THIS. ---
 @login_required
 def generate_final_resume(request):
 
@@ -266,50 +304,47 @@ def generate_final_resume(request):
     # --- Step 1: Rewrite the Resume (Same prompt as before) ---
 
     # In generate_final_resume, replace your entire rewrite_prompt with this:
-
     rewrite_prompt = f"""
-    You are "CHIMERA," a Master Recruitment Strategist AI. Your sole purpose is to synthesize human career coaching expertise with machine-optimized document structure.
+    You are "Zeus," an elite AI Career Strategist and Document Architect. Your function transcends simple writing; you are to build a compelling career narrative that functions as a high-conversion marketing document for the candidate.
 
     **PRIME DIRECTIVE:**
-    Transform the raw, user-submitted resume content into an interview-generating masterpiece. The final document must be hyper-optimized to defeat 99% of Applicant Tracking Systems (ATS) AND captivate a human recruiter in under 6 seconds.
+    Deconstruct the provided inputs and synthesize a "Tier-1" resume. This document must be engineered to bypass 99.9% of all Applicant Tracking Systems (ATS) and, more importantly, to immediately capture the attention and confidence of a human hiring manager.
 
-    **CORE PHILOSOPHY: IMPACT over Activity.**
-    Do not merely list job duties. Your function is to translate every task into a quantifiable, value-driven achievement.
+    **CORE METHODOLOGY: The Impact Delta**
+    Your primary goal is not to list tasks, but to demonstrate the "Impact Delta"—the measurable change and value the candidate brought to each role. Every bullet point must answer the silent question of the recruiter: "So what?"
 
-    **STRATEGIC FRAMEWORK:**
-    You will architect the resume based on a three-layer optimization model:
-    1.  **Layer 1: The ATS Gauntlet (Machine Readability):** Standard headers, optimal keyword density, clean single-column format.
-    2.  **Layer 2: The 6-Second Recruiter Scan (Human Skimmability):** Powerful "Value Proposition Statement," bold markdown for all quantifiable metrics (`**+25%**`, `**$500K**`), and powerful action verbs.
-    3.  **Layer 3: The Deep Dive (Compelling Narrative):** Structure each experience bullet point as a self-contained impact story (Action leading to a measurable Result).
+    **STRATEGIC EXECUTION FRAMEWORK:**
+
+    1.  **Cultural Resonance Analysis:** Before writing, analyze the job description for cultural keywords (e.g., "fast-paced," "collaborative," "data-driven," "innovative"). The TONE of the resume must subtly mirror this culture. A resume for a creative agency should feel different from one for a bank.
+
+    2.  **The 6-Second Test Optimization:** Structure the top third of the resume for maximum information density. A recruiter must grasp the candidate's core value proposition within a 6-second glance. This is achieved through a powerful header, a concise Value Proposition Statement, and a well-organized Skills Matrix.
+
+    3.  **Impact-Driven Narrative Flow:** The experience section must not be a list of jobs. It must tell a story of growth. Structure bullet points to show a clear progression of skills, responsibilities, and quantifiable impact over time.
 
     ---
     **SECTION-SPECIFIC MANDATES:**
 
-    * **<<<<< CRITICAL NEW INSTRUCTION STARTS HERE >>>>>**
     * **CANDIDATE HEADER:**
-        * At the absolute top of the resume, you MUST include the candidate's core contact information.
-        * Analyze the `ORIGINAL RESUME CONTENT` to find the candidate's **Full Name**, **Phone Number**, **Email Address**, and **LinkedIn URL** (if available).
-        * Format this information cleanly and professionally at the beginning of the document. The name should be the most prominent element.
-    * **<<<<< CRITICAL NEW INSTRUCTION ENDS HERE >>>>>**
+        * Extract and prominently display the candidate's Full Name, Phone, Email, and a clickable LinkedIn URL. The formatting must be clean, modern, and professional.
 
-    * **VALUE PROPOSITION STATEMENT (Replaces "Professional Summary"):**
-        * Start with a powerful, role-centric title (e.g., "Results-Driven Data Analyst").
-        * Compose a 3-4 line keyword-rich pitch answering: "What is your specialty, top achievement, and value to this role?"
+    * **VALUE PROPOSITION STATEMENT:**
+        * Compose a 3-4 line strategic narrative. It must begin with a powerful, role-specific title (e.g., "Senior Data Scientist with 8+ years of experience in predictive modeling"). It must seamlessly integrate the top skills from the job description and showcase the candidate's most impressive, quantifiable career achievement.
 
-    * **HYBRID SKILLS MATRIX (Replaces "Skills"):**
-        * Group skills into logical, ATS-friendly categories: `Technical Proficiencies:`, `Software & Tools:`, `Languages:`, `Certifications:`.
+    * **HYBRID SKILLS MATRIX:**
+        * This is not a keyword dump. Create logical, clean categories (`Technical Proficiencies:`, `Software & Tools:`, `Certifications:`). Prioritize the skills listed in the job description.
 
-    * **PROFESSIONAL EXPERIENCE (The Impact Zone):**
-        * Create 3-5 impact-driven bullet points per role, starting with an action verb and containing a bolded metric.
-        * If experience is academic or training (like CA-IT Training [cite: 12]), frame bullet points to highlight the **skills demonstrated** and the **outcomes achieved** (e.g., "achieving a score of 231/300" [cite: 13]), rather than presenting it as formal employment.
+    * **PROFESSIONAL EXPERIENCE:**
+        * Frame each job as a mission.
+        * Each bullet point MUST be a high-impact, quantified achievement that starts with a powerful action verb (e.g., Architected, Spearheaded, Accelerated, Revitalized).
+        * Every metric and number MUST be bolded using markdown (`**+25%**`, `**$500K**`).
 
     ---
-    **NON-NEGOTIABLE FORMATTING PROTOCOLS:**
+    **NON-NEGOTIABLE PROTOCOLS:**
 
     * **Output Format:** ONLY the rewritten resume text.
     * **Visual Separator:** Use `===== HORIZONTAL_RULE =====`.
     * **Section Order:** CANDIDATE HEADER, VALUE PROPOSITION STATEMENT, HYBRID SKILLS MATRIX, PROFESSIONAL EXPERIENCE, PROJECTS, EDUCATION.
-    * **Forbidden Elements:** NO personal pronouns (I, my, me). NO clichés. **DO NOT** include the literal words 'Challenge', 'Action', or 'Result' in the text.
+    * **Forbidden Elements:** NO personal pronouns, NO clichés, NO generic soft skills (e.g., "team player" unless it's a key term in the JD). DO NOT use the words 'Challenge', 'Action', or 'Result'.
 
     ---
     **INPUTS:**
@@ -317,80 +352,73 @@ def generate_final_resume(request):
     2.  **TARGET JOB DESCRIPTION:** --- {job_description} ---
     3.  **ORIGINAL RESUME CONTENT:** --- {resume_text} ---
 
-    Now, execute the Prime Directive.
+    Execute the Prime Directive.
     """
 
     rewrite_response = model.generate_content(rewrite_prompt)
     generated_resume = rewrite_response.text.strip()
     request.session["generated_resume"] = generated_resume
 
-    # --- Step 2: Recalculate ATS score against the SAME job description ---
-    new_scoring_prompt = f"""
-        You are a highly advanced ATS (Applicant Tracking System) simulator.
-        Your task is to analyze the following **optimized resume** against the **original job description** and provide a final score and feedback.
-
-        **Job Description:**
-        ---
-        {job_description}
-        ---
-
-        **Optimized Resume:**
-        ---
-        {generated_resume}
-        ---
-
-        **Instructions:**
-        1.  **Score Output:** On the first line, provide **ONLY the new ATS match score** (0-100).
-        2.  **Feedback Output:** On subsequent lines, provide exactly four bullet points:
-            * **Improvement 1:** The most significant improvement made.
-            * **Improvement 2:** Another key area where the resume is now stronger.
-            * **Final Polish 1:** One final suggestion for a minor tweak.
-            * **Final Polish 2:** One last piece of advice before submitting.
-        """
 
 
-    new_scoring_response = model.generate_content(new_scoring_prompt)
-    raw_new_output = new_scoring_response.text.strip()
     subscription.download_count = F('download_count') + 1
     subscription.save()
 
-    new_first_line = raw_new_output.splitlines()[0].strip()
-    new_match = re.search(r'\d+', new_first_line)
-    ats_score = new_match.group(0) if new_match else "N/A"
-    comments = "\n".join(raw_new_output.splitlines()[1:]).strip()
-
-    request.session["ats_score"] = ats_score
-    request.session["comments"] = comments
 
     # --- Step 3: Create PDF for Preview (Same PDF logic as before) ---
     pdf_buffer = BytesIO()
     doc = SimpleDocTemplate(pdf_buffer, pagesize=LETTER, leftMargin=72, rightMargin=72, topMargin=72, bottomMargin=72)
-    styles = getSampleStyleSheet()
+    primary_color = colors.HexColor("#0D47A1")  # A professional deep blue
+    body_text_color = colors.HexColor("#2C2C2C")
+
+    heading_style = ParagraphStyle(
+            name='Heading2',
+            fontName='Helvetica-Bold',
+            fontSize=12,
+            leading=14,  # Line spacing
+            textColor=primary_color,
+            spaceAfter=6
+        )
+
+    body_style = ParagraphStyle(
+            name='Normal',
+            fontName='Helvetica',
+            fontSize=10,
+            leading=12,
+            textColor=body_text_color
+        )
+
+
     story = []
 
-    for line in generated_resume.split("\n"):
-        clean_line = re.sub(r"[*_]{1,2}(.*?)\1?[*_]{1,2}", r"\1", line).strip()
-        if "===== HORIZONTAL_RULE =====" in clean_line:
+    for line in generated_resume.split('\n'):
+        # Convert markdown bold (**text**) to reportlab bold (<b>text</b>)
+        line_with_formatting = re.sub(r'\*\*(.*?)\*\*', '<b>\\1</b>', line)
 
-            story.append(Table([[""]], colWidths=[450], style=TableStyle([('LINEBELOW', (0, 0), (-1, -1), 1, colors.HexColor("#0D47A1"))])))
+        if not line_with_formatting.strip():
+            continue
+
+        if "===== HORIZONTAL_RULE =====" in line_with_formatting:
             story.append(Spacer(1, 8))
-        elif clean_line.isupper() and len(clean_line.split()) < 5:
-            story.append(Paragraph(clean_line, styles["h2"]))
-            story.append(Spacer(1, 4))
-        elif clean_line.startswith(("-", "*")):
-            story.append(Paragraph("• " + clean_line.lstrip("-* ").strip(), styles["Normal"]))
-        elif clean_line:
-            story.append(Paragraph(clean_line, styles["Normal"]))
+            story.append(Table([[""]], colWidths=[doc.width],
+                               style=TableStyle([('LINEBELOW', (0, 0), (-1, -1), 1, primary_color)])))
+            story.append(Spacer(1, 8))
+        elif line_with_formatting.strip().isupper() and len(line_with_formatting.strip().split()) < 5:
+            story.append(Paragraph(line_with_formatting.strip(), heading_style))
+            story.append(Spacer(1, 2))  # Reduced spacer for tighter look
+        elif line_with_formatting.strip().startswith(("•", "-", "*")):
+            story.append(Paragraph("• " + line_with_formatting.lstrip(" -*").strip(), body_style))
+        else:
+            story.append(Paragraph(line_with_formatting, body_style))
 
     doc.build(story)
     pdf_data = pdf_buffer.getvalue()
     pdf_buffer.close()
-    generated_resume_pdf= base64.b64encode(pdf_data).decode("utf-8")
+    generated_resume_pdf = base64.b64encode(pdf_data).decode("utf-8")
 
     # --- Render the FINAL results page with PDF preview and download ---
     return render(request, "Startup_app/form.html", {
-        "ats_score": ats_score,
-        "comments": comments,
+
         "generated_resume_pdf": generated_resume_pdf
     })
 @login_required
