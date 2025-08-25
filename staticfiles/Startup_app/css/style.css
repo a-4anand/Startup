@@ -1030,3 +1030,74 @@ body.nav-open {
     transform: rotate(360deg);
   }
 }
+
+
+/* In your Startup_app/css/style.css file */
+
+.stats-section {
+  background-color: #0b0f17; /* Matches your features section */
+  padding: 80px 50px;
+  color: #fff;
+}
+
+.stats-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.chart-container {
+  flex: 1 1 300px; /* Flexbox for responsive columns */
+  max-width: 350px;
+  position: relative;
+}
+
+.stats-text {
+  flex: 1 1 400px; /* Flexbox for responsive columns */
+  max-width: 600px;
+}
+
+.stats-text h2 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.big-number {
+  font-size: 6rem;
+  font-weight: 700;
+  color: #38f9d7; /* Your highlight color */
+  margin: 0;
+  line-height: 1;
+}
+
+.stats-description {
+  font-size: 1.2rem;
+  color: #ccc;
+  margin-top: 10px;
+  margin-bottom: 25px;
+}
+
+.stats-solution {
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.stats-solution strong {
+  color: #38f9d7;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stats-container {
+    flex-direction: column;
+    text-align: center;
+  }
+  .stats-text {
+    order: -1; /* Puts the text above the chart on mobile */
+  }
+}

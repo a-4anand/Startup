@@ -188,6 +188,30 @@ document.addEventListener("DOMContentLoaded", function() {
     <br>
     <br>
 
+
+  <section class="stats-section" data-aos="fade-up">
+  <div class="stats-container">
+
+    <div class="chart-container">
+      <canvas id="rejectionChart"></canvas>
+    </div>
+
+    <div class="stats-text">
+      <h2>The <span class="highlight">Hidden Hurdle</span> in Your Job Hunt</h2>
+      <p class="big-number">80%</p>
+      <p class="stats-description">
+        Of resumes are automatically rejected by Applicant Tracking Systems (ATS) before a human ever sees them. It's not about your qualifications—it's about speaking the right language.
+      </p>
+      <p class="stats-solution">
+        <strong>Cuvy is your translator.</strong> We transform your resume to bypass the bots and impress the recruiters, ensuring your talent gets the attention it deserves.
+      </p>
+
+    </div>
+
+  </div>
+</section>
+
+<br><br><br>
 <!--pricing-->
  <section class="how-it-works">
   <h2 data-aos="fade-up">How <span >Cuvy</span> Works</h2>
@@ -336,8 +360,60 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const chartCanvas = document.getElementById('rejectionChart');
+    if (chartCanvas) {
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                // Once the chart is visible, create and animate it
+                new Chart(chartCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Rejected by ATS', 'Seen by Recruiter'],
+                        datasets: [{
+                            data: [80, 20],
+                            backgroundColor: [
+                                '#38f9d7', // Your highlight color
+                                'rgba(255, 255, 255, 0.1)' // A subtle background color
+                            ],
+                            borderColor: [
+                                '#38f9d7',
+                                'rgba(255, 255, 255, 0.1)'
+                            ],
+                            borderWidth: 1,
+                            cutout: '80%' // Makes the doughnut thin and modern
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false // Hides the default legend
+                            },
+                            tooltip: {
+                                enabled: false // Hides tooltips on hover
+                            }
+                        },
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true
+                        }
+                    }
+                });
+                // Stop observing after the chart is created to prevent re-animation
+                observer.unobserve(chartCanvas);
+            }
+        }, {
+            threshold: 0.5 // Trigger when 50% of the chart is visible
+        });
 
-
+        // Start observing the chart canvas
+        observer.observe(chartCanvas);
+    }
+});
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
