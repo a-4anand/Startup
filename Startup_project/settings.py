@@ -36,7 +36,11 @@ ALLOWED_HOSTS = [
     'rezoome.azurewebsites.net',
     'localhost',
     '127.0.0.1',
-    'startup-v76d.onrender.com'
+    'startup-v76d.onrender.com',
+    'cuvy.me',
+    'www.cuvy.me'
+# settings.py
+
 ]
 
 
